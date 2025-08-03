@@ -1,0 +1,16 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME")
+DATABASE_URL = os.getenv("DATABASE_URL")
+ADMIN_TELEGRAM_ID = os.getenv("ADMIN_TELEGRAM_ID")
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
+
+VALIDATORS = [
+    'NumberValidator',
+    'BloodPressureValidator',
+    'EmptyValidator',
+]
