@@ -62,7 +62,7 @@ async def awaiting_enter_role_name(
     await msg.answer(text=text, parse_mode="html", reply_markup=generate_admin_to_main_keyboard())
 
 
-@router.callback_query(F.data.startswith("admin:role:"))
+@router.callback_query(F.data.startswith("admin:role:id:"))
 async def admin_role_info(
         cb: CallbackQuery,
         role_service: RoleService
@@ -82,6 +82,10 @@ async def admin_role_info(
                 callback_data=f"admin:edit:role:{role_id}"
             ),
             InlineKeyboardButton(
+                text="🗑️Удалить категорию",
+                callback_data=f"admin:role:delete:{role_id}"
+            )],
+            [InlineKeyboardButton(
                 text="🔙Все категории",
                 callback_data=f"admin:all_roles"
             )]
@@ -133,3 +137,24 @@ async def admin_enter_role_new_name(
     await msg.answer(f"Имя категории <b>{old_role_name}</b> успешно изменено на <b>{role.name}</b>",
                      parse_mode="html",
                      reply_markup=keyboard)
+
+
+@router.callback_query(F.data.startswith("admin:role:delete:"))
+async def admin_role_delete(
+        cb: CallbackQuery,
+        role_service: RoleService
+):
+    await cb.answer()
+    await safe_message_delete(cb.message)
+
+    role_id: int = int(cb.data.split(":")[-1])
+    role: Role = await role_service.get_by_id(role_id)
+
+    await role_service.delete(role)
+
+    await cb.message.answer(text="Категория успешно удалена.",
+                            reply_markup=InlineKeyboardMarkup(
+                                inline_keyboard=[
+                                    [InlineKeyboardButton(text="🔙Все категории", callback_data=f"admin:all_roles")]
+                                ]
+                            ))

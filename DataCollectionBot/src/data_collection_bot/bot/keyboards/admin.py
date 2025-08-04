@@ -29,7 +29,7 @@ def generate_admin_start_keyboard() -> InlineKeyboardMarkup:
 
 
 # region Invite-keyboards
-async def generate_admin_invite_keyboard(invites: list[Invite], role_service: RoleService) -> InlineKeyboardMarkup:
+async def generate_admin_all_invite_keyboard(invites: list[Invite], role_service: RoleService) -> InlineKeyboardMarkup:
     buttons = []
     for invite in invites:
         role: Role = await role_service.get_by_id(invite.role_id)
@@ -39,7 +39,7 @@ async def generate_admin_invite_keyboard(invites: list[Invite], role_service: Ro
         if invite.is_used:
             text += f'Использовано | {role.name}'
         else:
-            text += f'Не использовано'
+            text += f'Не использовано | {role.name}'
 
         button = InlineKeyboardButton(text=text, callback_data=f'admin:invite:id:{invite.id}')
         buttons.append([button])
@@ -49,14 +49,14 @@ async def generate_admin_invite_keyboard(invites: list[Invite], role_service: Ro
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def generate_admin_roles_invite_keyboard(roles: list[Role]) -> InlineKeyboardMarkup:
+def generate_admin_invite_choose_roles_keyboard(roles: list[Role]) -> InlineKeyboardMarkup:
     return generate_admin_roles_keyboard(roles=roles, callback_template="admin:invite:role:{id}")
 # endregion
 
 
 # region Roles-keyboards
 def generate_admin_all_roles_keyboard(roles: list[Role]) -> InlineKeyboardMarkup:
-    return generate_admin_roles_keyboard(roles=roles, callback_template="admin:role:{id}")
+    return generate_admin_roles_keyboard(roles=roles, callback_template="admin:role:id:{id}")
 
 
 def generate_admin_roles_keyboard(
@@ -159,6 +159,8 @@ def generate_admin_edit_parameter_keyboard(
                                              callback_data=f"admin:parameter:edit:choice_open:{parameter_id}")
                         ]
                        )
+
+    buttons.append([InlineKeyboardButton(text="🗑️Удалить параметр", callback_data=f"admin:parameter:delete:{parameter_id}")])
     buttons.append([InlineKeyboardButton(text="🔙Ко всем параметрам", callback_data="admin:all_parameters")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 

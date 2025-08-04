@@ -1,3 +1,4 @@
+from logging import Logger
 from typing import TypeVar, Generic
 
 from src.data_collection_bot.backend.models import IdentifiedBase
@@ -11,7 +12,7 @@ TModel = TypeVar('TModel', bound=IdentifiedBase)
 
 class DeleteMixin(Generic[TModel, TRepo]):
     repository: TRepo
-
+    logger: Logger
 
     async def delete(self, item: TModel) -> None:
         try:

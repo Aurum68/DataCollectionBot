@@ -42,7 +42,6 @@ class BaseRepository(Generic[T]):
         try:
             await self.session.delete(item)
             await self.session.commit()
-            await self.session.refresh(item)
         except Exception as e:
             self.logger.error(e, exc_info=True)
             await self.session.rollback()

@@ -4,7 +4,7 @@ from aiogram import Router, F
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from src.data_collection_bot import (ParameterService,
                                      UserService,
@@ -915,3 +915,25 @@ async def choosing_new_norm(
             selected=selected
         ))
     await state.set_state(next_state)
+
+
+@router.callback_query(F.data.startswith("admin:parameter:delete"))
+async def admin_delete_parameter(
+        cb: CallbackQuery,
+        parameter_service: ParameterService
+):
+    await cb.answer()
+    await safe_message_delete(cb.message)
+
+    parameter_id: int = int(cb.data.split(":")[-1])
+    parameter: Parameter = await parameter_service.get_by_id(item_id=parameter_id)
+
+    await parameter_service.delete(parameter)
+
+    await cb.message.answer(text="Параметр успешно удалён.",
+                            reply_markup=InlineKeyboardMarkup(
+                                inline_keyboard=[
+                                    [InlineKeyboardButton(text="🔙Ко всем параметрам",
+                                                          callback_data="admin:all_parameters")]
+                                ]
+                            ))

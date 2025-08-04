@@ -1,10 +1,10 @@
-from aiogram import Router, Bot, F
+from aiogram import Router, F
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from src.data_collection_bot import InviteService, UserService, Role, RoleService, Invite, User
-from ..keyboards.admin import generate_admin_invite_keyboard, generate_admin_roles_invite_keyboard, generate_admin_to_main_keyboard
+from ..keyboards.admin import generate_admin_all_invite_keyboard, generate_admin_invite_choose_roles_keyboard, generate_admin_to_main_keyboard
 
 from src.data_collection_bot.bot.utils.helpers import is_admin_cb, safe_message_delete
 
@@ -21,8 +21,7 @@ async def admin_all_invites(
         cb: CallbackQuery,
         invite_service: InviteService,
         user_service: UserService,
-        role_service: RoleService,
-        bot: Bot
+        role_service: RoleService
 ):
     if not await is_admin_cb(cb, user_service, role_service): return
 
@@ -30,9 +29,9 @@ async def admin_all_invites(
     await cb.answer()
 
     invites = await invite_service.get_all()
-    keyboard = await generate_admin_invite_keyboard(invites, role_service)
+    keyboard = await generate_admin_all_invite_keyboard(invites, role_service)
     text: str = "Все пригласительные ссылки:"
-    await bot.send_message(cb.from_user.id, text, reply_markup=keyboard)
+    await cb.message.answer(text=text, reply_markup=keyboard)
 
 
 @router.callback_query(F.data == 'admin:new_invite')
@@ -47,7 +46,7 @@ async def admin_new_invite(
     await cb.answer()
 
     roles: list[Role] = await role_service.get_all()
-    keyboard = generate_admin_roles_invite_keyboard(roles)
+    keyboard = generate_admin_invite_choose_roles_keyboard(roles)
     await cb.message.answer("Выберите категорию пациентов:", reply_markup=keyboard)
     await cb.answer()
 
@@ -155,7 +154,12 @@ async def admin_invite_info(
     await cb.answer()
     await safe_message_delete(cb.message)
 
-    keyboard = generate_admin_to_main_keyboard()
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🗑️Удалить приглашение", callback_data=f"admin:invite:delete:id:{invite_id}")],
+            [InlineKeyboardButton(text="🔙Ко списку приглашений", callback_data="admin:all_invites")]
+        ]
+    )
 
     invite: Invite = await invite_service.get_by_id(invite_id)
     main_text: str = f"Ссылка: <code>{await InviteService.get_link(invite)}</code>\n"
@@ -175,3 +179,25 @@ async def admin_invite_info(
             f"Категория: {role.name}")
 
     await cb.message.answer(text=text, parse_mode='HTML', reply_markup=keyboard)
+
+
+@router.callback_query(F.data.startswith("admin:invite:delete:id:"))
+async def admin_invite_delete(
+        cb: CallbackQuery,
+        invite_service: InviteService
+):
+    await cb.answer()
+    await safe_message_delete(cb.message)
+
+    invite_id: int = int(cb.data.split(":")[-1])
+    invite: Invite = await invite_service.get_by_id(invite_id)
+
+    await invite_service.delete(invite)
+
+    await cb.message.answer(text="Приглашение успешно удалено.",
+                            reply_markup=InlineKeyboardMarkup(
+                                inline_keyboard=[
+                                    [InlineKeyboardButton(text="🔙Ко списку приглашений",
+                                                          callback_data="admin:all_invites")]
+                                ]
+                            ))
