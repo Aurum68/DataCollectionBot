@@ -2,7 +2,7 @@ from typing import Sequence, Any, Callable
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from src.data_collection_bot import Invite, Role, RoleService, Roles, Parameter, Rules
+from src.data_collection_bot import Invite, Role, RoleService, Roles, Parameter, Rules, User
 
 
 def generate_admin_start_keyboard() -> InlineKeyboardMarkup:
@@ -24,6 +24,10 @@ def generate_admin_start_keyboard() -> InlineKeyboardMarkup:
     text = "Все параметры"
     button2 = InlineKeyboardButton(text=text, callback_data=f'admin:all_parameters')
     buttons.append([button1, button2])
+
+    text = "Все пациенты"
+    button1 = InlineKeyboardButton(text=text, callback_data=f'admin:all_users')
+    buttons.append([button1])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -50,29 +54,23 @@ async def generate_admin_all_invite_keyboard(invites: list[Invite], role_service
 
 
 def generate_admin_invite_choose_roles_keyboard(roles: list[Role]) -> InlineKeyboardMarkup:
-    return generate_admin_roles_keyboard(roles=roles, callback_template="admin:invite:role:{id}")
+    buttons = generate_admin_roles_keyboard(roles=roles, callback_template="admin:invite:role:{id}").inline_keyboard
+    buttons += generate_admin_invite_cancel_keyboard().inline_keyboard
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def generate_admin_invite_cancel_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="❌Отмена", callback_data='admin:main')],
+        ]
+    )
 # endregion
 
 
 # region Roles-keyboards
 def generate_admin_all_roles_keyboard(roles: list[Role]) -> InlineKeyboardMarkup:
     return generate_admin_roles_keyboard(roles=roles, callback_template="admin:role:id:{id}")
-
-
-def generate_admin_roles_keyboard(
-        roles: list[Role],
-        callback_template: str
-):
-    buttons = []
-    for role in roles:
-        if role.name == Roles.ADMIN.value: continue
-        text: str = f'{role.name}'
-        button = InlineKeyboardButton(text=text, callback_data=callback_template.format(id=role.id))
-        buttons.append([button])
-
-    buttons += generate_admin_to_main_keyboard().inline_keyboard
-
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
 # endregion
 
 
@@ -152,6 +150,9 @@ def generate_admin_edit_parameter_keyboard(
         [
             InlineKeyboardButton(text="Изменить правило", callback_data=f'admin:parameter:edit:rule_open:{parameter_id}'),
             InlineKeyboardButton(text="Изменить норму", callback_data=f'admin:parameter:edit:norm_open:{parameter_id}')
+        ],
+        [
+            InlineKeyboardButton(text="Изменить инструкцию", callback_data=f'admin:parameter:edit:instruction:{parameter_id}'),
         ]
     ]
     if current_rule == Rules.CHOOSE.name:
@@ -231,6 +232,70 @@ def generate_admin_to_parameter_keyboard(
 # endregion
 
 
+# region User-keyboard
+async def generate_admin_all_users_keyboard(
+        users: list[User]
+) -> InlineKeyboardMarkup:
+    buttons = []
+    row = []
+    for user in users:
+        if user.role.name == Roles.ADMIN.value: continue
+        first_name = user.first_name if user.first_name else ''
+        last_name = user.last_name if user.last_name else ''
+        button = InlineKeyboardButton(text=f"{first_name} {last_name} | {user.role.name}",
+                                      callback_data=f"admin:user:concrete:{user.id}")
+        row.append(button)
+        if len(row) == 2:
+            buttons.append(row.copy())
+            row.clear()
+
+    if len(row) > 0:
+        buttons.append(row.copy())
+
+    buttons += generate_admin_to_main_keyboard().inline_keyboard
+
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def generate_admin_user_edit_keyboard(user_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить категорию пациента", callback_data=f"admin:edit:user:role_open:{user_id}")],
+        [InlineKeyboardButton(text="🗑️Удалить пациента", callback_data=f"admin:edit:user:delete:{user_id}")],
+        [InlineKeyboardButton(text="🔙К списку пациентов", callback_data=f"admin:all_users")]
+    ])
+
+
+def generate_admin_user_edit_role_keyboard(roles: list[Role], user_id: int) -> InlineKeyboardMarkup:
+    buttons = generate_admin_roles_keyboard(roles=roles, callback_template="admin:user:edit:role:{id}").inline_keyboard
+    buttons += generate_admin_user_cancel_keyboard(user_id=user_id).inline_keyboard
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def generate_admin_to_all_users_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🔙К списку пациентов", callback_data=f"admin:all_users")]
+        ]
+    )
+
+
+def generate_admin_to_user_keyboard(user_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🔙К карточке пациента", callback_data=f"admin:user:concrete:{user_id}")]
+        ]
+    )
+
+
+def generate_admin_user_cancel_keyboard(user_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="❌Отмена", callback_data=f"admin:user:concrete:{user_id}")]
+        ]
+    )
+# endregion
+
+
 # region Helpers-keyboard
 def generate_admin_to_main_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
@@ -266,6 +331,20 @@ def generate_checkbox_keyboard(
     buttons.append(
         [InlineKeyboardButton(text=finish_text, callback_data=finish_callback)]
     )
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def generate_admin_roles_keyboard(
+        roles: list[Role],
+        callback_template: str
+):
+    buttons = []
+    for role in roles:
+        if role.name == Roles.ADMIN.value: continue
+        text: str = f'{role.name}'
+        button = InlineKeyboardButton(text=text, callback_data=callback_template.format(id=role.id))
+        buttons.append([button])
+
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 # endregion
 

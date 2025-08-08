@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher
 
 from config import *
 from src.data_collection_bot import UserRepository, AsyncSessionLocal, RoleRepository, UserService, RoleService, \
-    ParameterRepository, InviteRepository, InviteService, BotMiddleware
+    ParameterRepository, InviteRepository, InviteService, BotMiddleware, ParameterService
 from src.data_collection_bot.bot.middleware.db_session_middleware import DBSessionMiddleware
 from src.data_collection_bot.database import DBManager
 from src.data_collection_bot.database import Base, get_engine
@@ -13,6 +13,7 @@ from src.data_collection_bot.bot.admin.admin_invite_handler import get_router as
 from src.data_collection_bot.bot.admin.base import get_router as admin_router
 from src.data_collection_bot.bot.admin.admin_role_handler import get_router as admin_role_router
 from src.data_collection_bot.bot.admin.admin_parameter_handler import get_router as admin_parameter_router
+from src.data_collection_bot.bot.admin.admin_user_handler import get_router as admin_user_router
 
 from initialize import initialize
 
@@ -47,6 +48,7 @@ async def main():
     dp.include_router(router=admin_router())
     dp.include_router(router=admin_role_router())
     dp.include_router(router=admin_parameter_router())
+    dp.include_router(router=admin_user_router())
 
     try:
         logging.info("Starting bot...")
@@ -77,12 +79,14 @@ async def init() -> None:
 
         user_service = UserService(user_repository)
         role_service = RoleService(role_repository, parameter_repository)
+        parameter_service = ParameterService(parameter_repository)
         invite_service = InviteService(invite_repository)
 
         await initialize(
             user_service=user_service,
             role_service=role_service,
             invite_service=invite_service,
+            parameter_service=parameter_service,
             admin_telegram_id=ADMIN_TELEGRAM_ID
         )
 

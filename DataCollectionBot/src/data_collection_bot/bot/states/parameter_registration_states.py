@@ -8,3 +8,4 @@ class ParameterRegistrationStates(StatesGroup):
     awaiting_choose_row = State()
     choosing_norm = State()
     awaiting_norm_row = State()
+    awaiting_instruction = State()

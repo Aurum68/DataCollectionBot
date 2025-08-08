@@ -15,3 +15,5 @@ class ParameterEditStates(StatesGroup):
 
     awaiting_new_choice = State()
     choosing_new_choice_norm = State()
+
+    awaiting_new_instruction = State()

@@ -207,21 +207,31 @@ async def admin_create_parameter_choose_norm(
 async def admin_create_parameter_finish_choose_norms(
         cb: CallbackQuery,
         state: FSMContext,
-        parameter_service: ParameterService,
-        role_service: RoleService
 ):
     await cb.answer()
     await safe_message_delete(cb.message)
 
-    await admin_finish_create_parameter(cb.message, state, parameter_service, role_service)
+    await cb.message.answer(
+        text="Если необходимо - введите инструкцию, как заполнять этот параметр.",
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Пропустить и создать параметр",
+                        callback_data=f'admin:parameter:create:skip_instruction'
+                    )
+                ]
+            ]
+        )
+    )
+    await state.set_state(ParameterRegistrationStates.awaiting_instruction)
+    await cb.answer()
 
 
 @router.message(StateFilter(ParameterRegistrationStates.awaiting_norm_row))
 async def admin_create_parameter_norm_row(
         message: Message,
-        state: FSMContext,
-        parameter_service: ParameterService,
-        role_service: RoleService
+        state: FSMContext
 ):
     norm_row = message.text
 
@@ -235,7 +245,61 @@ async def admin_create_parameter_norm_row(
     if not res: return
 
     await state.update_data(norm_row=norm_row)
-    await admin_finish_create_parameter(message, state, parameter_service, role_service)
+
+    await message.answer(
+        text="Если необходимо - введите инструкцию, как заполнять этот параметр.",
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Пропустить и создать параметр",
+                        callback_data=f'admin:parameter:create:skip_instruction'
+                    )
+                ]
+            ]
+        )
+    )
+    await state.set_state(ParameterRegistrationStates.awaiting_instruction)
+
+
+@router.message(StateFilter(ParameterRegistrationStates.awaiting_instruction))
+async def admin_create_parameter_instruction(
+        message: Message,
+        state: FSMContext,
+        parameter_service: ParameterService,
+        role_service: RoleService
+):
+    instruction = message.text
+
+    await state.update_data(instruction=instruction)
+
+    await admin_finish_create_parameter(
+        message=message,
+        state=state,
+        parameter_service=parameter_service,
+        role_service=role_service
+    )
+
+
+@router.callback_query(F.data == 'admin:parameter:create:skip_instruction',
+                       StateFilter(ParameterRegistrationStates.awaiting_instruction))
+async def admin_create_parameter_skip_instruction(
+        cb: CallbackQuery,
+        state: FSMContext,
+        parameter_service: ParameterService,
+        role_service: RoleService
+):
+    await cb.answer()
+    await safe_message_delete(cb.message)
+
+    await state.update_data(instruction="")
+
+    await admin_finish_create_parameter(
+        message=cb.message,
+        state=state,
+        parameter_service=parameter_service,
+        role_service=role_service
+    )
 
 
 async def admin_finish_create_parameter(
@@ -248,6 +312,7 @@ async def admin_finish_create_parameter(
 
     await message.answer(text=f"Успешно создан параметр <b>{parameter.name}</b>.\n", parse_mode="HTML",
                          reply_markup=generate_admin_to_main_keyboard())
+    await state.clear()
 
 
 async def admin_create_parameter(
@@ -261,12 +326,14 @@ async def admin_create_parameter(
     rule: str = data['rule']
     choose: str = data['choose']
     norm_row: str = data['norm_row']
+    instruction: str = data['instruction']
 
     parameter_dto: CreateParameterDTO = CreateParameterDTO(
         name=name,
         rule=rule,
         choice=choose,
-        norm_raw=norm_row
+        norm_row=norm_row,
+        instruction=instruction
     )
     parameter: Parameter = await parameter_service.create(parameter_dto)
 
@@ -295,7 +362,8 @@ async def admin_parameter_concrete(
     text: str = (f"Параметр <b>{parameter.name}</b>:\n"
                  f"Категории: <b>{roles}</b>\n"
                  f"Правило: <b>{Rules[parameter.rule].value}</b>\n"
-                 f"Норма: <b>{parameter.norm_raw}</b>")
+                 f"Норма: <b>{parameter.norm_row}</b>\n"
+                 f"Инструкция: <b>{parameter.instruction}</b>")
     await cb.message.answer(text=text, parse_mode="HTML", reply_markup=generate_admin_edit_parameter_keyboard(parameter_id=parameter_id,
                                                                                                               current_rule=parameter.rule))
 
@@ -587,7 +655,7 @@ async def admin_edit_parameter_finish_choose_new_choice_norm_rule(
     parameter_dto = UpdateParameterDTO(
         rule=rule,
         choice=choice,
-        norm_raw=';'.join(selected)
+        norm_row=';'.join(selected)
     )
 
     parameter: Parameter = await parameter_service.update(item_id=parameter_id, item=parameter_dto)
@@ -596,7 +664,7 @@ async def admin_edit_parameter_finish_choose_new_choice_norm_rule(
     await cb.message.answer(text=f"Вы успешно изменили параметр <b>{parameter_name}</b>.\n"
                                  f"Правило: <i>{Rules[rule].value}</i>\n"
                                  f"Варианты ответов: <i>{choice}</i>\n"
-                                 f"Норма: <i>{parameter.norm_raw}</i>",
+                                 f"Норма: <i>{parameter.norm_row}</i>",
                             parse_mode="HTML",
                             reply_markup=keyboard)
 
@@ -624,13 +692,13 @@ async def admin_edit_parameter_enter_new_norm_row_rule(
 
     rule, norm = result
 
-    parameter_dto = UpdateParameterDTO(rule=rule, norm_raw=new_norm_row)
+    parameter_dto = UpdateParameterDTO(rule=rule, norm_row=new_norm_row)
     parameter: Parameter = await parameter_service.update(item_id=parameter_id, item=parameter_dto)
     keyboard = generate_admin_to_parameter_keyboard(parameter_id)
 
     await msg.answer(text=f"Вы успешно изменили параметр <b>{parameter_name}</b>.\n"
                                  f"Правило: <i>{Rules[rule].value}</i>\n"
-                                 f"Норма: <i>{parameter.norm_raw}</i>",
+                                 f"Норма: <i>{parameter.norm_row}</i>",
                      parse_mode="HTML",
                      reply_markup=keyboard
                      )
@@ -652,7 +720,7 @@ async def admin_edit_parameter_norm_open(
 
     if parameter.rule == Rules.CHOOSE.name:
         choice: str = parameter.choice
-        selected: list[str] = parameter.norm_raw.split(';')
+        selected: list[str] = parameter.norm_row.split(';')
         keyboard = generate_admin_edit_parameter_norm_choose_keyboard(
             parameter_id=parameter_id,
             choices=choice,
@@ -667,7 +735,7 @@ async def admin_edit_parameter_norm_open(
 
     await state.update_data(rule=parameter.rule)
     await cb.message.answer(text=f"Введите новую норму для параметра <b>{parameter.name}</b>.\n"
-                                 f"Текущая норма: <i>{parameter.norm_raw}</i>",
+                                 f"Текущая норма: <i>{parameter.norm_row}</i>",
                             parse_mode="HTML",
                             reply_markup=generate_admin_edit_parameter_cancel_keyboard(parameter_id=parameter_id))
     await state.set_state(ParameterEditStates.awaiting_new_norm_row)
@@ -702,12 +770,12 @@ async def admin_edit_parameter_finish_choose_norm(
 
     new_norm_row: str = ';'.join(selected)
 
-    parameter_dto = UpdateParameterDTO(norm_raw=new_norm_row)
+    parameter_dto = UpdateParameterDTO(norm_row=new_norm_row)
 
     parameter: Parameter = await parameter_service.update(item_id=parameter_id, item=parameter_dto)
 
     await cb.message.answer(text=f"Успешно изменена норма параметра <b>{parameter.name}</b>.\n"
-                                 f"Текущая норма: <i>{parameter.norm_raw}</i>",
+                                 f"Текущая норма: <i>{parameter.norm_row}</i>",
                             parse_mode="HTML",
                             reply_markup=generate_admin_to_parameter_keyboard(parameter_id=parameter_id)
                             )
@@ -731,12 +799,12 @@ async def admin_edit_parameter_awaiting_new_norm_row(
     )
     if not res: return
 
-    parameter_dto = UpdateParameterDTO(norm_raw=msg.text)
+    parameter_dto = UpdateParameterDTO(norm_row=msg.text)
     parameter: Parameter = await parameter_service.update(item_id=parameter_id, item=parameter_dto)
 
     keyboard = generate_admin_to_parameter_keyboard(parameter_id)
     await msg.answer(text=f"Успешно изменена норма для параметра <b>{parameter.name}</b>.\n"
-                          f"Текущая норма: <i>{parameter.norm_raw}</i>",
+                          f"Текущая норма: <i>{parameter.norm_row}</i>",
                      parse_mode="HTML",
                      reply_markup=keyboard
                      )
@@ -836,7 +904,7 @@ async def admin_edit_parameter_finish_choose_norms_choice(
 
     new_norm: str = ';'.join(selected)
 
-    parameter_dto = UpdateParameterDTO(norm_raw=new_norm, choice=choice)
+    parameter_dto = UpdateParameterDTO(norm_row=new_norm, choice=choice)
     parameter: Parameter = await parameter_service.update(item_id=parameter_id, item=parameter_dto)
 
     await cb.message.answer(text=f"Успешно изменён параметр <b>{parameter.name}</b>.\n"
@@ -915,6 +983,83 @@ async def choosing_new_norm(
             selected=selected
         ))
     await state.set_state(next_state)
+
+
+@router.callback_query(F.data.startswith("admin:parameter:edit:instruction:"))
+async def admin_edit_parameter_instruction_open(
+        cb: CallbackQuery,
+        state: FSMContext,
+        parameter_service: ParameterService
+):
+    await cb.answer()
+    await safe_message_delete(cb.message)
+
+    parameter_id: int = int(cb.data.split(":")[-1])
+    parameter: Parameter = await parameter_service.get_by_id(item_id=parameter_id)
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="✏️Очистить инструкцию", callback_data=f"admin:parameter:edit:clean_instruction")],
+            generate_admin_edit_parameter_cancel_keyboard(parameter_id=parameter_id).inline_keyboard[0]
+        ]
+    )
+
+    await cb.message.answer(text=f"Введите инструкцию для параметра <b>{parameter.name}</b>.\n"
+                                 f"Текущая инструкция: <i>{parameter.instruction}</i>",
+                            parse_mode="HTML",
+                            reply_markup=keyboard)
+    await state.update_data(parameter_id=parameter_id, instruction=parameter.instruction)
+    await state.set_state(ParameterEditStates.awaiting_new_instruction)
+
+
+@router.message(StateFilter(ParameterEditStates.awaiting_new_instruction))
+async def admin_edit_parameter_enter_instruction(
+        msg: Message,
+        state: FSMContext,
+        parameter_service: ParameterService
+):
+    data = await state.get_data()
+    parameter_id: int = data['parameter_id']
+    current_instruction: str = data['instruction']
+
+    new_instruction: str = msg.text
+    if current_instruction == new_instruction:
+        await msg.answer(text="Введена та же инструкция! Введите новую или нажмите <i>Отмена</i>",
+                         parse_mode="HTML",
+                         reply_markup=generate_admin_edit_parameter_cancel_keyboard(parameter_id=parameter_id)
+                         )
+        await state.set_state(ParameterEditStates.awaiting_new_instruction)
+        return
+
+    parameter_dto = UpdateParameterDTO(instruction=new_instruction)
+    parameter: Parameter = await parameter_service.update(item_id=parameter_id, item=parameter_dto)
+
+    await msg.answer(text=f"Инструкция для параметра <b>{parameter.name}</b> успешно изменена.\n"
+                          f"Текущая инструкция: <i>{parameter.instruction}</i>",
+                     parse_mode="HTML",
+                     reply_markup=generate_admin_to_parameter_keyboard(parameter_id=parameter_id))
+
+
+@router.callback_query(F.data == "admin:parameter:edit:clean_instruction")
+async def admin_edit_parameter_clean_instruction(
+        cb: CallbackQuery,
+        state: FSMContext,
+        parameter_service: ParameterService
+):
+    await cb.answer()
+    await safe_message_delete(cb.message)
+
+    data = await state.get_data()
+    parameter_id: int = data['parameter_id']
+
+    new_instruction: str = ""
+
+    parameter_dto = UpdateParameterDTO(instruction=new_instruction)
+    parameter: Parameter = await parameter_service.update(item_id=parameter_id, item=parameter_dto)
+
+    await cb.message.answer(text=f"Инструкция параметра <b>{parameter.name}</b> успешно очищена.",
+                            parse_mode="HTML",
+                            reply_markup=generate_admin_to_parameter_keyboard(parameter_id=parameter_id))
 
 
 @router.callback_query(F.data.startswith("admin:parameter:delete"))

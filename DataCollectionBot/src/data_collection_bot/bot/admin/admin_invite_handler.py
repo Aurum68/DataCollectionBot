@@ -157,7 +157,7 @@ async def admin_invite_info(
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="🗑️Удалить приглашение", callback_data=f"admin:invite:delete:id:{invite_id}")],
-            [InlineKeyboardButton(text="🔙Ко списку приглашений", callback_data="admin:all_invites")]
+            [InlineKeyboardButton(text="🔙К списку приглашений", callback_data="admin:all_invites")]
         ]
     )
 
