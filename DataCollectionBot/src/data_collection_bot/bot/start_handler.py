@@ -1,13 +1,16 @@
 import base64
 import binascii
 import json
+import logging
 from datetime import datetime, timezone
 
-from aiogram import Router, Bot
+from aiogram import Router
 from aiogram.filters import Command, CommandObject
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from src.data_collection_bot import UserService, InviteService, CreateUserDTO, RoleService, Role, Invite, Roles, User
+from src.data_collection_bot import UserService, InviteService, CreateUserDTO, RoleService, Role, Invite, Roles, User, \
+    UpdateInviteDTO
 from src.data_collection_bot.bot.ui import admin_start, user_start
 
 router = Router()
@@ -20,17 +23,21 @@ def get_router() -> Router:
 ERROR_INVITE = "🚫Доступ запрещён.\n⚠️Некорректная ссылка приглашение!"
 ERROR_EXPIRED = "🚫Доступ запрещён.\n⏰Истёк срок действия ссылки!"
 ERROR_USED = "🚫Доступ запрещён.\nСсылка уже использована."
+ERROR_REGISTERED = "Вы уже зарегистрированы!"
 
 
 @router.message(Command(commands=['start']))
 async def start(
         msg: Message,
+        state: FSMContext,
         command: CommandObject,
         user_service: UserService,
         invite_service: InviteService,
-        role_service: RoleService,
-        bot: Bot
+        role_service: RoleService
 ):
+    if not (await user_service.get_user_by_telegram_id(msg.from_user.id)) is None:
+        await msg.answer(ERROR_REGISTERED)
+        return
 
     args: str = command.args
     if args is None or not args.startswith('invite_'):
@@ -56,14 +63,18 @@ async def start(
         await msg.answer(ERROR_USED)
         return
 
-    invite.is_used = True
+    invite_dto: UpdateInviteDTO = UpdateInviteDTO(is_used=True)
+    updated_invite: Invite = await invite_service.update(item_id=invite.id, item=invite_dto)
 
     role: Role = await role_service.get_by_id(invite.role_id)
 
-    user: User = await user_service.create(create_user(msg, role, invite))
-    invite.role_id = role.id
+    user: User = await user_service.create(create_user(msg, role, updated_invite))
 
-    await admin_start(msg=msg, bot=bot) if user.role.name == Roles.ADMIN.value else await user_start(msg=msg, bot=bot)
+    logging.info(f"User with id: {user.telegram_id}; username: {user.username if user.username else 'None'} used "
+                 f"invite with token: {invite.token}")
+
+    await admin_start(msg=msg) if user.role.name == Roles.ADMIN.value else await user_start(msg=msg,
+                                                                                            state=state)
 
 def decode_args(args: str) -> dict[str, str] | None:
     try:

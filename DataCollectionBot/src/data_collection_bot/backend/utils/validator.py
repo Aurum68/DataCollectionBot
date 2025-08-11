@@ -1,6 +1,7 @@
 import re
 from typing import Protocol
 
+from src.data_collection_bot.backend.utils.rule_enum import Rules
 from src.data_collection_bot.backend.utils.register_factory import RegisterFactory
 
 
@@ -14,7 +15,7 @@ class ValidatorFactory(RegisterFactory[Validator]):
     pass
 
 
-@ValidatorFactory.register('Число')
+@ValidatorFactory.register(Rules.NUMBER.name)
 class NumberValidator(Validator):
     @classmethod
     def validate(cls, text: str) -> bool:
@@ -25,7 +26,7 @@ class NumberValidator(Validator):
             return False
 
 
-@ValidatorFactory.register("Артериальное давление")
+@ValidatorFactory.register(Rules.BLOOD_PRESSURE.name)
 class BloodPressureValidator(Validator):
     BLOOD_PRESSURE_REGEX = re.compile(r'^\d{2,3}(\.\d+)?/\d{2,3}(\.\d+)?$')
 
@@ -34,7 +35,7 @@ class BloodPressureValidator(Validator):
         return bool(re.match(cls.BLOOD_PRESSURE_REGEX, text))
 
 
-@ValidatorFactory.register("Empty")
+@ValidatorFactory.register(Rules.CHOOSE.name)
 class EmptyValidator(Validator):
     @classmethod
     def validate(cls, text: str) -> bool:

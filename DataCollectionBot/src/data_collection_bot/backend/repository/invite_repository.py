@@ -22,5 +22,10 @@ class InviteRepository(BaseRepository[Invite]):
 
 
     async def get_invite_by_token(self, token: str) -> Invite:
-        result = await self.session.execute(select(self.model).where(self.model.token == token))
+        result = await self.session.execute(
+            select(self.model)
+            .options(
+                selectinload(Invite.user)
+            )
+            .where(self.model.token == token))
         return result.scalars().first()

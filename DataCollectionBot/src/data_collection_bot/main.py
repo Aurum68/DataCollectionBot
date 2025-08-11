@@ -14,6 +14,7 @@ from src.data_collection_bot.bot.admin.base import get_router as admin_router
 from src.data_collection_bot.bot.admin.admin_role_handler import get_router as admin_role_router
 from src.data_collection_bot.bot.admin.admin_parameter_handler import get_router as admin_parameter_router
 from src.data_collection_bot.bot.admin.admin_user_handler import get_router as admin_user_router
+from src.data_collection_bot.bot.ui.user import get_router as user_registration_router
 
 from initialize import initialize
 
@@ -49,6 +50,7 @@ async def main():
     dp.include_router(router=admin_role_router())
     dp.include_router(router=admin_parameter_router())
     dp.include_router(router=admin_user_router())
+    dp.include_router(router=user_registration_router())
 
     try:
         logging.info("Starting bot...")

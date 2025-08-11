@@ -70,7 +70,9 @@ def generate_admin_invite_cancel_keyboard() -> InlineKeyboardMarkup:
 
 # region Roles-keyboards
 def generate_admin_all_roles_keyboard(roles: list[Role]) -> InlineKeyboardMarkup:
-    return generate_admin_roles_keyboard(roles=roles, callback_template="admin:role:id:{id}")
+    buttons = generate_admin_roles_keyboard(roles=roles, callback_template="admin:role:id:{id}").inline_keyboard
+    buttons += generate_admin_to_main_keyboard().inline_keyboard
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 # endregion
 
 
@@ -347,5 +349,3 @@ def generate_admin_roles_keyboard(
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 # endregion
-
-

@@ -47,7 +47,9 @@ from .admin_role_handler import (admin_all_roles, admin_enter_role_new_name,
                                  admin_new_role, admin_role_delete,
                                  admin_role_edit, admin_role_info,
                                  awaiting_enter_role_name, get_router, router,)
-from .admin_user_handler import (admin_all_users, get_router, router,)
+from .admin_user_handler import (admin_all_users, admin_edit_user_role,
+                                 admin_edit_user_role_open, admin_user,
+                                 admin_user_delete, get_router, router,)
 from .base import (admin_main, get_router, router,)
 
 __all__ = ['admin_all_invites', 'admin_all_parameters', 'admin_all_roles',
@@ -79,12 +81,14 @@ __all__ = ['admin_all_invites', 'admin_all_parameters', 'admin_all_roles',
            'admin_edit_parameter_name', 'admin_edit_parameter_norm_open',
            'admin_edit_parameter_roles', 'admin_edit_parameter_roles_opening',
            'admin_edit_parameter_rule_choose',
-           'admin_edit_parameter_rule_open', 'admin_enter_role_new_name',
+           'admin_edit_parameter_rule_open', 'admin_edit_user_role',
+           'admin_edit_user_role_open', 'admin_enter_role_new_name',
            'admin_finish_create_parameter', 'admin_invite_delete',
            'admin_invite_enter_ttl', 'admin_invite_info',
            'admin_invite_select_role', 'admin_invite_skip_ttl', 'admin_main',
            'admin_new_invite', 'admin_new_parameter', 'admin_new_role',
            'admin_parameter_concrete', 'admin_role_delete', 'admin_role_edit',
-           'admin_role_info', 'admin_send_invite_link',
-           'awaiting_enter_role_name', 'choosing_new_norm', 'get_router',
-           'is_norm_correct', 'router', 'validate_norm_row']
+           'admin_role_info', 'admin_send_invite_link', 'admin_user',
+           'admin_user_delete', 'awaiting_enter_role_name',
+           'choosing_new_norm', 'get_router', 'is_norm_correct', 'router',
+           'validate_norm_row']

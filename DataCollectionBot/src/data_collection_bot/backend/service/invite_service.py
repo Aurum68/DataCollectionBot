@@ -3,18 +3,20 @@ import json
 import secrets
 from datetime import datetime, timedelta, UTC
 
+from src.data_collection_bot.backend.dto import UpdateInviteDTO
+from src.data_collection_bot.backend.service.base_service_updating import BaseServiceUpdating
 from src.data_collection_bot.backend.models import Role
 from src.data_collection_bot.backend.dto import CreateInviteDTO
 from src.data_collection_bot.backend.models import Invite
 from src.data_collection_bot.backend.repository import InviteRepository
-from src.data_collection_bot.backend.service.base_service_non_updating import BaseServiceNonUpdating
 from src.data_collection_bot.config import TELEGRAM_BOT_USERNAME
 
 
-class InviteService(BaseServiceNonUpdating[
+class InviteService(BaseServiceUpdating[
     Invite,
     InviteRepository,
-    CreateInviteDTO
+    CreateInviteDTO,
+    UpdateInviteDTO
                     ]):
     def __init__(self, repository: InviteRepository):
         super().__init__(Invite, repository)
