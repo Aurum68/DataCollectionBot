@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from src.data_collection_bot import InviteService, UserService, Role, RoleService, Invite, User
-from ..keyboards.admin import generate_admin_all_invite_keyboard, generate_admin_invite_choose_roles_keyboard, generate_admin_to_main_keyboard
+from src.data_collection_bot.bot.keyboards.admin import generate_admin_all_invite_keyboard, generate_admin_invite_choose_roles_keyboard, generate_admin_to_main_keyboard
 
 from src.data_collection_bot.bot.utils.helpers import is_admin_cb, safe_message_delete
 

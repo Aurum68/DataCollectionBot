@@ -9,12 +9,12 @@ from src.data_collection_bot.bot.middleware.db_session_middleware import DBSessi
 from src.data_collection_bot.database import DBManager
 from src.data_collection_bot.database import Base, get_engine
 from src.data_collection_bot.bot.start_handler import get_router as start_router
-from src.data_collection_bot.bot.admin.admin_invite_handler import get_router as admin_invite_router
-from src.data_collection_bot.bot.admin.base import get_router as admin_router
-from src.data_collection_bot.bot.admin.admin_role_handler import get_router as admin_role_router
-from src.data_collection_bot.bot.admin.admin_parameter_handler import get_router as admin_parameter_router
-from src.data_collection_bot.bot.admin.admin_user_handler import get_router as admin_user_router
-from src.data_collection_bot.bot.ui.user import get_router as user_registration_router
+from src.data_collection_bot.bot.handlers.admin.admin_invite_handler import get_router as admin_invite_router
+from src.data_collection_bot.bot.handlers.admin.base import get_router as admin_router
+from src.data_collection_bot.bot.handlers.admin.admin_role_handler import get_router as admin_role_router
+from src.data_collection_bot.bot.handlers.admin.admin_parameter_handler import get_router as admin_parameter_router
+from src.data_collection_bot.bot.handlers.admin.admin_user_handler import get_router as admin_user_router
+from src.data_collection_bot.bot.handlers.ui import get_router as user_registration_router
 
 from initialize import initialize
 

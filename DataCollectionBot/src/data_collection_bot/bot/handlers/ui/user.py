@@ -41,6 +41,17 @@ async def user_enter_first_name(msg: Message, state: FSMContext):
 async def user_enter_last_name(msg: Message, state: FSMContext):
     last_name = msg.text
     await state.update_data(last_name=last_name)
+    await state.set_state(UserRegistrationStates.awaiting_patronymic)
+    await msg.answer(
+        text="Класс! Теперь введите, пожалуйста, своё настоящее отчество (отчество ребёнка, если Вы родитель) ",
+        parse_mode='html',
+    )
+
+
+@router.message(UserRegistrationStates.awaiting_patronymic)
+async def user_enter_patronymic(msg: Message, state: FSMContext):
+    patronymic = msg.text
+    await state.update_data(patronymic=patronymic)
     await state.set_state(UserRegistrationStates.awaiting_birthday)
     await msg.answer(text="Супер! Теперь введите, пожалуйста, свою настоящую дату рождения (дату рождения ребёнка, если Вы родитель)\n"
                           "<i>Дату рождения введите в виде ДД.ММ.ГГГГ. Пример: 23.07.2006</i>", parse_mode="HTML")
@@ -62,10 +73,11 @@ async def user_enter_birthday(msg: Message, state: FSMContext, user_service: Use
     user_tg_id = data.get("user_tg_id")
     first_name = data.get("first_name")
     last_name = data.get("last_name")
+    patronymic = data.get("patronymic")
 
     user: User = await user_service.get_user_by_telegram_id(user_tg_id)
 
-    user_dto = UpdateUserDTO(first_name=first_name, last_name=last_name, birthday=bd)
+    user_dto = UpdateUserDTO(first_name=first_name, last_name=last_name, patronymic=patronymic, birthday=bd)
 
     await user_service.update(item_id=user.id, item=user_dto)
 

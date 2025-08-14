@@ -11,7 +11,7 @@ from aiogram.types import Message
 
 from src.data_collection_bot import UserService, InviteService, CreateUserDTO, RoleService, Role, Invite, Roles, User, \
     UpdateInviteDTO
-from src.data_collection_bot.bot.ui import admin_start, user_start
+from src.data_collection_bot.bot.handlers.ui import admin_start, user_start
 
 router = Router()
 
