@@ -1,3 +1,4 @@
+import sqlalchemy
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -12,12 +13,19 @@ class UserRepository(BaseRepository[User]):
 
 
     async def get_all(self):
+        await self.session.commit()
+        print(sqlalchemy.__version__)
         result = await self.session.execute(
             select(self.model)
             .options(
                 selectinload(self.model.role)
             )
         )
+        rows = result.all()
+        print('Raw rows:', rows)
+        print('Scalars:', result.scalars().all())
+        print("self.model type:", type(self.model), self.model)
+        print("SELF.MODEL User id:", id(self.model))
         return result.scalars().all()
 
 

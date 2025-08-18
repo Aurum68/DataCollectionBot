@@ -22,6 +22,7 @@ from .admin import (generate_admin_all_invite_keyboard,
                     generate_admin_user_edit_keyboard,
                     generate_admin_user_edit_role_keyboard,
                     generate_checkbox_keyboard,)
+from .user import (user_keyboard, )
 
 __all__ = ['generate_admin_all_invite_keyboard',
            'generate_admin_all_parameters_keyboard',
@@ -45,4 +46,4 @@ __all__ = ['generate_admin_all_invite_keyboard',
            'generate_admin_user_cancel_keyboard',
            'generate_admin_user_edit_keyboard',
            'generate_admin_user_edit_role_keyboard',
-           'generate_checkbox_keyboard']
+           'generate_checkbox_keyboard', 'user_keyboard']

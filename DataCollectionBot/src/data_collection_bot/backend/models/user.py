@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
 class User(IdentifiedBase):
     __tablename__ = 'users'
-    # id: int = Column(Integer, primary_key=True)
     telegram_id: Mapped[int] = Column(BigInteger, unique=True, nullable=False)
     username: Mapped[str] = Column(String(255), unique=True, nullable=True)
     first_name: Mapped[str] = Column(String(255), nullable=True)
@@ -27,6 +26,3 @@ class User(IdentifiedBase):
     invite_id: Mapped[int] = Column(Integer, ForeignKey('invites.id'), unique=True, nullable=True)
     invite: Mapped["Invite"] = relationship('Invite', back_populates='user', uselist=False)
     records: Mapped[list["Record"]] = relationship('Record', back_populates='user')
-
-'''Но Ку и Ин не пришли. Ли услышала хлоп входной двери - и тишина 
-'''

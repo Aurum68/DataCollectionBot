@@ -1,10 +1,15 @@
 import asyncio
+from datetime import datetime
 
+import pytz
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.redis import RedisStorage
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from redis.asyncio import Redis
 
-from config import *
+from src.data_collection_bot.config import *
 from src.data_collection_bot import UserRepository, AsyncSessionLocal, RoleRepository, UserService, RoleService, \
-    ParameterRepository, InviteRepository, InviteService, BotMiddleware, ParameterService
+    ParameterRepository, InviteRepository, InviteService, BotMiddleware, ParameterService, daily_params_start_init
 from src.data_collection_bot.bot.middleware.db_session_middleware import DBSessionMiddleware
 from src.data_collection_bot.database import DBManager
 from src.data_collection_bot.database import Base, get_engine
@@ -16,18 +21,20 @@ from src.data_collection_bot.bot.handlers.admin.admin_parameter_handler import g
 from src.data_collection_bot.bot.handlers.admin.admin_user_handler import get_router as admin_user_router
 from src.data_collection_bot.bot.handlers.ui import get_router as user_registration_router
 
-from initialize import initialize
+from src.data_collection_bot.initialize import initialize
 
 import logging
 
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     filename='../../bot.log',
     filemode='w',
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+
+logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 
 async def main():
@@ -36,8 +43,10 @@ async def main():
     await db_init(db_manager)
     await init()
 
+    #redis = Redis(host='redis', port=6379, db=0, decode_responses=True)
+    #storage = RedisStorage(redis)
     bot = Bot(TELEGRAM_TOKEN)
-    dp = Dispatcher()
+    dp = Dispatcher()#storage=storage
 
     dp.message.middleware(DBSessionMiddleware(AsyncSessionLocal))
     dp.message.middleware(BotMiddleware(bot=bot))
@@ -54,8 +63,8 @@ async def main():
 
     try:
         logging.info("Starting bot...")
+        #sheduler_task = asyncio.create_task(setup_sheduler(bot=bot, storage=storage))
         await dp.start_polling(bot)
-        logging.info("Bot started.")
     except KeyboardInterrupt:
         logging.info("Bot stopped by user...")
     except Exception as e:
@@ -93,6 +102,29 @@ async def init() -> None:
         )
 
 
+# async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
+#     print('In setup_sheduler')
+#     now = datetime.now(pytz.timezone('Europe/Kaliningrad'))
+#     print('Setup time:', now)
+#     sheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
+#     async with AsyncSessionLocal() as session:
+#         user_repository = UserRepository(session)
+#         user_service = UserService(user_repository)
+#         print("Add job on", now.hour, now.minute)
+#         sheduler.add_job(
+#             func=daily_params_start_init,
+#             trigger='cron',
+#             hour=now.hour,
+#             minute=now.minute + 3,
+#             args=(bot, storage, user_service)
+#         )
+#     sheduler.add_job(lambda: print(f"Timer test! {datetime.now()}"), 'cron', hour=now.hour, minute=now.minute + 3)
+#     sheduler.start()
+#     print('Sheduler started.')
+#     await asyncio.Event().wait()
+
+
 if __name__ == '__main__':
     logging.info("Starting bot...")
     asyncio.run(main())
+

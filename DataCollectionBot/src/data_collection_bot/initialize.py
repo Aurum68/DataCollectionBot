@@ -2,7 +2,7 @@ import pandas as pd
 
 from src.data_collection_bot import UserService, User, Roles, RoleService, Role, CreateRoleDTO, \
     InviteService, ParameterService, CreateParameterDTO, Parameter, Rules
-from config import PARAMETERS_TABLE_PATH
+from src.data_collection_bot.config import PARAMETERS_TABLE_PATH
 
 
 async def initialize(
