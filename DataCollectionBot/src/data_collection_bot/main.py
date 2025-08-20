@@ -20,6 +20,7 @@ from src.data_collection_bot.bot.handlers.admin.admin_role_handler import get_ro
 from src.data_collection_bot.bot.handlers.admin.admin_parameter_handler import get_router as admin_parameter_router
 from src.data_collection_bot.bot.handlers.admin.admin_user_handler import get_router as admin_user_router
 from src.data_collection_bot.bot.handlers.ui import get_router as user_registration_router
+from src.data_collection_bot.bot.handlers.user import get_router as user_router
 
 from src.data_collection_bot.initialize import initialize
 
@@ -43,10 +44,10 @@ async def main():
     await db_init(db_manager)
     await init()
 
-    #redis = Redis(host='redis', port=6379, db=0, decode_responses=True)
-    #storage = RedisStorage(redis)
+    redis = Redis(host='redis', port=6379, db=0, decode_responses=True)
+    storage = RedisStorage(redis)
     bot = Bot(TELEGRAM_TOKEN)
-    dp = Dispatcher()#storage=storage
+    dp = Dispatcher(storage=storage)
 
     dp.message.middleware(DBSessionMiddleware(AsyncSessionLocal))
     dp.message.middleware(BotMiddleware(bot=bot))
@@ -60,10 +61,11 @@ async def main():
     dp.include_router(router=admin_parameter_router())
     dp.include_router(router=admin_user_router())
     dp.include_router(router=user_registration_router())
+    dp.include_router(router=user_router())
 
     try:
         logging.info("Starting bot...")
-        #sheduler_task = asyncio.create_task(setup_sheduler(bot=bot, storage=storage))
+        sheduler_task = asyncio.create_task(setup_sheduler(bot=bot, storage=storage))
         await dp.start_polling(bot)
     except KeyboardInterrupt:
         logging.info("Bot stopped by user...")
@@ -102,26 +104,30 @@ async def init() -> None:
         )
 
 
-# async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
-#     print('In setup_sheduler')
-#     now = datetime.now(pytz.timezone('Europe/Kaliningrad'))
-#     print('Setup time:', now)
-#     sheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
-#     async with AsyncSessionLocal() as session:
-#         user_repository = UserRepository(session)
-#         user_service = UserService(user_repository)
-#         print("Add job on", now.hour, now.minute)
-#         sheduler.add_job(
-#             func=daily_params_start_init,
-#             trigger='cron',
-#             hour=now.hour,
-#             minute=now.minute + 3,
-#             args=(bot, storage, user_service)
-#         )
-#     sheduler.add_job(lambda: print(f"Timer test! {datetime.now()}"), 'cron', hour=now.hour, minute=now.minute + 3)
-#     sheduler.start()
-#     print('Sheduler started.')
-#     await asyncio.Event().wait()
+async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
+    print('In setup_sheduler')
+    now = datetime.now(pytz.timezone('Europe/Kaliningrad'))
+    print('Setup time:', now)
+    sheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
+    async with AsyncSessionLocal() as session:
+        user_repository = UserRepository(session)
+        user_service = UserService(user_repository)
+
+        role_repository = RoleRepository(session)
+        parameter_repository = ParameterRepository(session)
+        role_service = RoleService(role_repository, parameter_repository)
+
+        print("Add job on", now.hour, now.minute)
+        sheduler.add_job(
+            func=daily_params_start_init,
+            trigger='cron',
+            hour=now.hour,
+            minute=now.minute + 4,
+            args=(bot, storage, user_service, role_service)
+        )
+    sheduler.start()
+    print('Sheduler started.')
+    await asyncio.Event().wait()
 
 
 if __name__ == '__main__':

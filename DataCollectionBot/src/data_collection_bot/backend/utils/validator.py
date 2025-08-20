@@ -1,5 +1,5 @@
 import re
-from typing import Protocol
+from typing import Protocol, Type
 
 from src.data_collection_bot.backend.utils.rule_enum import Rules
 from src.data_collection_bot.backend.utils.register_factory import RegisterFactory
@@ -12,7 +12,7 @@ class Validator(Protocol):
 
 
 class ValidatorFactory(RegisterFactory[Validator]):
-    pass
+    _register: dict[str, Type[Validator]] = {}
 
 
 @ValidatorFactory.register(Rules.NUMBER.name)

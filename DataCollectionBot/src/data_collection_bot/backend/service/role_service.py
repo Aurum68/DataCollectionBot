@@ -19,6 +19,11 @@ class RoleService(BaseServiceUpdating[
         return await self.repository.get_role_by_name(name)
 
 
+    async def get_parameters_by_role_id(self, role_id: int) -> list[Parameter]:
+        role: Role = await self.repository.get_by_id(role_id)
+        return role.parameters
+
+
     async def add_parameter_to_role(self, role_id: int, parameter_id: int) -> Role:
         role: Role = await self.repository.get_by_id(role_id)
         parameter: Parameter = await self.parameter_repository.get_by_id(parameter_id)

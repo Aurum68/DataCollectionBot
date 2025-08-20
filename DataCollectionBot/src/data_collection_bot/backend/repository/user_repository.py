@@ -12,21 +12,21 @@ class UserRepository(BaseRepository[User]):
         super().__init__(session, User)
 
 
-    async def get_all(self):
-        await self.session.commit()
-        print(sqlalchemy.__version__)
-        result = await self.session.execute(
-            select(self.model)
-            .options(
-                selectinload(self.model.role)
-            )
-        )
-        rows = result.all()
-        print('Raw rows:', rows)
-        print('Scalars:', result.scalars().all())
-        print("self.model type:", type(self.model), self.model)
-        print("SELF.MODEL User id:", id(self.model))
-        return result.scalars().all()
+    # async def get_all(self):
+    #     await self.session.commit()
+    #     print(sqlalchemy.__version__)
+    #     result = await self.session.execute(
+    #         select(self.model)
+    #         .options(
+    #             selectinload(self.model.role)
+    #         )
+    #     )
+    #     rows = result.all()
+    #     print('Raw rows:', rows)
+    #     print('Scalars:', list(result.scalars().all()))
+    #     print("self.model type:", type(self.model), self.model)
+    #     print("SELF.MODEL User id:", id(self.model))
+    #     return list(result.scalars().all())
 
 
     async def get_by_id(self, item_id: int) -> User:

@@ -924,7 +924,7 @@ async def validate_norm_row(
     data = await state.get_data()
     rule: str = data['rule']
 
-    norm: Norm | None = await is_norm_correct(rule, msg, state)
+    norm: Norm | None = await is_norm_correct(rule, norm_row, msg, state)
     if norm is None:
         return None
 
@@ -938,11 +938,12 @@ async def validate_norm_row(
 
 async def is_norm_correct(
         rule: str,
+        norm_row: str,
         msg: Message,
         state: FSMContext,
 ) -> Norm | None:
     try:
-        norm: Norm = NormFactory.create(rule)
+        norm: Norm = NormFactory.create(rule, norm_row)
         return norm
     except ValueError:
         await msg.answer(

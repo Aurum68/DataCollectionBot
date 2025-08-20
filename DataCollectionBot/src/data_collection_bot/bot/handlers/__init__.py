@@ -43,6 +43,8 @@ from .admin import (admin_all_invites, admin_all_parameters, admin_all_roles,
 from .ui import (admin_start, check_birthday, get_router, router,
                  user_enter_birthday, user_enter_first_name,
                  user_enter_last_name, user_enter_patronymic, user_start,)
+from .user import (get_router, router, save_answer, user_answer_callback,
+                   user_enter_message,)
 
 __all__ = ['admin_all_invites', 'admin_all_parameters', 'admin_all_roles',
            'admin_all_users', 'admin_create_enter_parameter_name',
@@ -83,6 +85,7 @@ __all__ = ['admin_all_invites', 'admin_all_parameters', 'admin_all_roles',
            'admin_role_info', 'admin_send_invite_link', 'admin_start',
            'admin_user', 'admin_user_delete', 'awaiting_enter_role_name',
            'check_birthday', 'choosing_new_norm', 'get_router',
-           'is_norm_correct', 'router', 'user_enter_birthday',
-           'user_enter_first_name', 'user_enter_last_name',
+           'is_norm_correct', 'router', 'save_answer', 'user_answer_callback',
+           'user_enter_birthday', 'user_enter_first_name',
+           'user_enter_last_name', 'user_enter_message',
            'user_enter_patronymic', 'user_start', 'validate_norm_row']

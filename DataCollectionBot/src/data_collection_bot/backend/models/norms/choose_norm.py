@@ -10,7 +10,7 @@ class ChooseNorm(Norm):
         clean: str = raw.strip()
         if not self.can_parse(raw): return
 
-        self.norms: list[str] = clean.split('/')
+        self.norms: list[str] = clean.split(';')
 
 
     @classmethod

@@ -3,7 +3,6 @@ import re
 from src.data_collection_bot.backend.utils.rule_enum import Rules
 from .norm import Norm
 from .norm_factory import NormFactory
-from src.data_collection_bot.backend.utils import Validator
 
 
 @NormFactory.register(Rules.BLOOD_PRESSURE.name)
@@ -32,7 +31,6 @@ class BloodPressureNorm(Norm):
 
 
     def is_norm(self, value: str) -> bool:
-        if not Validator.validate(value): raise ValueError("{value} is not a valid blood pressure".format(value=value))
         systolic, diastolic = value.split('/')
         try:
             systolic = float(systolic)

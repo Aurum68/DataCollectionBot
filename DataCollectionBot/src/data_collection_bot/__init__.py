@@ -83,17 +83,19 @@ from .bot import (BotMiddleware, DBSessionMiddleware, ERROR_ACCESS,
                   generate_admin_user_edit_keyboard,
                   generate_admin_user_edit_role_keyboard,
                   generate_checkbox_keyboard, get_router, is_admin_cb,
-                  is_admin_msg, is_norm_correct, user_keyboard, prepare_text,
-                  router, safe_message_delete, start, user_enter_birthday,
+                  is_admin_msg, is_norm_correct, prepare_text, router,
+                  safe_message_delete, save_answer, start,
+                  user_answer_callback, user_enter_birthday,
                   user_enter_first_name, user_enter_last_name,
-                  user_enter_patronymic, user_start, validate_norm_row, )
+                  user_enter_message, user_enter_patronymic, user_keyboard,
+                  user_start, validate_norm_row,)
 from .config import (ADMIN_TELEGRAM_ID, ADMIN_USERNAME, DATABASE_URL,
                      PARAMETERS_TABLE_PATH, TELEGRAM_BOT_USERNAME,
                      TELEGRAM_TOKEN, VALIDATORS,)
 from .database import (AsyncSessionLocal, Base, DBManager, get_engine,)
 from .initialize import (add_parameters_from_xlsx, ensure_admin_user_exists,
                          ensure_roles_exists, initialize,)
-from .main import (db_init, init, main,)
+from .main import (db_init, init, main, setup_sheduler,)
 
 __all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
            'BaseRepository', 'BaseServiceNonUpdating', 'BaseServiceUpdating',
@@ -181,7 +183,9 @@ __all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
            'generate_admin_user_edit_role_keyboard',
            'generate_checkbox_keyboard', 'get_engine', 'get_router', 'init',
            'initialize', 'is_admin_cb', 'is_admin_msg', 'is_norm_correct',
-           'user_keyboard', 'main', 'prepare_text', 'role_parameters', 'router',
-           'safe_message_delete', 'start', 'user_enter_birthday',
+           'main', 'prepare_text', 'role_parameters', 'router',
+           'safe_message_delete', 'save_answer', 'setup_sheduler', 'start',
+           'user_answer_callback', 'user_enter_birthday',
            'user_enter_first_name', 'user_enter_last_name',
-           'user_enter_patronymic', 'user_start', 'validate_norm_row']
+           'user_enter_message', 'user_enter_patronymic', 'user_keyboard',
+           'user_start', 'validate_norm_row']

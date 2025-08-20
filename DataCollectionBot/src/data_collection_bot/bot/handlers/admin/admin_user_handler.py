@@ -24,9 +24,9 @@ async def admin_all_users(
     await cb.answer()
     await safe_message_delete(cb.message)
 
-    users: list[User] = await user_service.get_all()
+    user_ids: list[int] = [user.id for user in (await user_service.get_all())]
 
-    keyboard = await generate_admin_all_users_keyboard(users)
+    keyboard = await generate_admin_all_users_keyboard(user_ids, user_service)
 
     await cb.message.answer(text="Зарегистрированные пациенты:", reply_markup=keyboard)
 

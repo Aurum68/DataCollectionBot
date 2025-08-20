@@ -2,7 +2,7 @@ from typing import Sequence, Any, Callable
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from src.data_collection_bot import Invite, Role, RoleService, Roles, Parameter, Rules, User
+from src.data_collection_bot import Invite, Role, RoleService, Roles, Parameter, Rules, User, UserService
 
 
 def generate_admin_start_keyboard() -> InlineKeyboardMarkup:
@@ -236,11 +236,13 @@ def generate_admin_to_parameter_keyboard(
 
 # region User-keyboard
 async def generate_admin_all_users_keyboard(
-        users: list[User]
+        user_ids: list[int],
+        user_service: UserService,
 ) -> InlineKeyboardMarkup:
     buttons = []
     row = []
-    for user in users:
+    for user_id in user_ids:
+        user: User = await user_service.get_by_id(user_id)
         if user.role.name == Roles.ADMIN.value: continue
         first_name = user.first_name if user.first_name else ''
         last_name = user.last_name if user.last_name else ''

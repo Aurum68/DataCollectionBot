@@ -43,9 +43,11 @@ from .handlers import (admin_all_invites, admin_all_parameters,
                        admin_send_invite_link, admin_start, admin_user,
                        admin_user_delete, awaiting_enter_role_name,
                        check_birthday, choosing_new_norm, get_router,
-                       is_norm_correct, router, user_enter_birthday,
+                       is_norm_correct, router, save_answer,
+                       user_answer_callback, user_enter_birthday,
                        user_enter_first_name, user_enter_last_name,
-                       user_enter_patronymic, user_start, validate_norm_row,)
+                       user_enter_message, user_enter_patronymic, user_start,
+                       validate_norm_row,)
 from .keyboards import (generate_admin_all_invite_keyboard,
                         generate_admin_all_parameters_keyboard,
                         generate_admin_all_roles_keyboard,
@@ -69,7 +71,7 @@ from .keyboards import (generate_admin_all_invite_keyboard,
                         generate_admin_user_cancel_keyboard,
                         generate_admin_user_edit_keyboard,
                         generate_admin_user_edit_role_keyboard,
-                        generate_checkbox_keyboard, user_keyboard, )
+                        generate_checkbox_keyboard, user_keyboard,)
 from .middleware import (BotMiddleware, DBSessionMiddleware,)
 from .service import (ask_next_param, daily_params_start,
                       daily_params_start_init, prepare_text,)
@@ -148,7 +150,9 @@ __all__ = ['BotMiddleware', 'DBSessionMiddleware', 'ERROR_ACCESS',
            'generate_admin_user_edit_keyboard',
            'generate_admin_user_edit_role_keyboard',
            'generate_checkbox_keyboard', 'get_router', 'is_admin_cb',
-           'is_admin_msg', 'is_norm_correct', 'user_keyboard', 'prepare_text',
-           'router', 'safe_message_delete', 'start', 'user_enter_birthday',
+           'is_admin_msg', 'is_norm_correct', 'prepare_text', 'router',
+           'safe_message_delete', 'save_answer', 'start',
+           'user_answer_callback', 'user_enter_birthday',
            'user_enter_first_name', 'user_enter_last_name',
-           'user_enter_patronymic', 'user_start', 'validate_norm_row']
+           'user_enter_message', 'user_enter_patronymic', 'user_keyboard',
+           'user_start', 'validate_norm_row']
