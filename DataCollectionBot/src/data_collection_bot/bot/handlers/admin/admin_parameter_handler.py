@@ -79,7 +79,7 @@ async def admin_create_enter_parameter_name(
     await state.update_data(parameter_name=name,
                             selected_roles=[],
                             rule="",
-                            choose="",
+                            choose=None,
                             norm_choose=[],
                             norm_row=""
                         )

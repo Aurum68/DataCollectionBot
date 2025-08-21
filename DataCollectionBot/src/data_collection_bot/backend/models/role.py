@@ -21,5 +21,6 @@ class Role(IdentifiedBase):
     parameters: Mapped[list["Parameter"]] = relationship(
         "Parameter",
         secondary=role_parameters,
+        back_populates="roles"
     )
     users: Mapped[list["User"]] = relationship("User", back_populates="role")

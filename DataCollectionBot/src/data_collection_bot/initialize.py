@@ -2,7 +2,7 @@ import pandas as pd
 
 from src.data_collection_bot import UserService, User, Roles, RoleService, Role, CreateRoleDTO, \
     InviteService, ParameterService, CreateParameterDTO, Parameter, Rules
-from src.data_collection_bot.config import PARAMETERS_TABLE_PATH
+from src.data_collection_bot.config import PARAMETERS_TABLE_PATH, ADMIN_INVITE_FILE_PATH
 
 
 async def initialize(
@@ -48,7 +48,9 @@ async def ensure_admin_user_exists(
         role: Role = await role_service.get_role_by_name(Roles.ADMIN.value)
 
         link: str = await invite_service.generate_invite_link(role=role)
-        print("Ссылка для входа админа: ", link)
+        with open(ADMIN_INVITE_FILE_PATH, 'w') as file:
+            file.write(link)
+            file.close()
 
 
 async def add_parameters_from_xlsx(

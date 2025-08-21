@@ -125,8 +125,8 @@ async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
         sheduler.add_job(
             func=daily_params_start_init,
             trigger='cron',
-            hour=now.hour,
-            minute=now.minute + 4,
+            hour=8,
+            minute=0,
             args=(bot, storage, user_service, role_service, record_service)
         )
     sheduler.start()

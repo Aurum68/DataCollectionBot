@@ -92,9 +92,10 @@ from .bot import (BotMiddleware, DBSessionMiddleware, ERROR_ACCESS,
                   user_start, validate_norm_row,)
 from .config import (ADMIN_TELEGRAM_ID, ADMIN_USERNAME, DATABASE_URL,
                      DATA_TABLE_PATH, PARAMETERS_TABLE_PATH,
-                     TELEGRAM_BOT_USERNAME, TELEGRAM_TOKEN, VALIDATORS,)
+                     TELEGRAM_BOT_USERNAME, TELEGRAM_TOKEN,)
 from .database import (AsyncSessionLocal, Base, DBManager, get_engine,)
 from .exel import (save_records,)
+from .cloud_disk import upload_to_yandex_disk
 from .initialize import (add_parameters_from_xlsx, ensure_admin_user_exists,
                          ensure_roles_exists, initialize,)
 from .main import (db_init, init, main, setup_sheduler,)
@@ -118,7 +119,7 @@ __all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
            'TRepo', 'T_C_DTO', 'T_Cr_DTO', 'T_U_DTO', 'T_Up_DTO',
            'UpdateInviteDTO', 'UpdateMixin', 'UpdateParameterDTO',
            'UpdateRoleDTO', 'UpdateUserDTO', 'User', 'UserRegistrationStates',
-           'UserRepository', 'UserService', 'VALIDATORS', 'Validator',
+           'UserRepository', 'UserService', 'Validator',
            'ValidatorFactory', 'add_parameters_from_xlsx', 'admin_all_invites',
            'admin_all_parameters', 'admin_all_roles', 'admin_all_users',
            'admin_create_enter_parameter_name', 'admin_create_parameter',
@@ -192,4 +193,4 @@ __all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
            'user_enter_birthday', 'user_enter_first_name',
            'user_enter_last_name', 'user_enter_message',
            'user_enter_patronymic', 'user_keyboard', 'user_start',
-           'validate_norm_row']
+           'validate_norm_row', 'upload_to_yandex_disk',]

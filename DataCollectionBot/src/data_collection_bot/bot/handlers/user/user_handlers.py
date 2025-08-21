@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from src.data_collection_bot import (RoleService, UserService, Parameter, ValidatorFactory, Norm, Validator,
-                                     NormFactory, RecordService)
+                                     NormFactory, RecordService, Rules)
 from src.data_collection_bot.bot.states import PollStates
 from src.data_collection_bot.bot.service import ask_next_param
 from src.data_collection_bot.bot.utils import safe_message_delete
@@ -41,7 +41,7 @@ async def user_enter_message(
 
     if not validator_cls.validate(answer) or parameter.choice is not None:
         await message.answer(text=f"Введено неверное значение для параметра <b>{parameter.name}</b>.\n"
-                                  f"Введите <i>{parameter.rule}</i>", parse_mode="html")
+                                  f"Введите <i>{Rules[parameter.rule].value}</i>", parse_mode="html")
         await ask_next_param(
             bot=bot,
             state=state,

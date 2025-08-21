@@ -3,7 +3,8 @@ import os
 import openpyxl
 from openpyxl.styles import PatternFill
 
-from src.data_collection_bot.config import DATA_TABLE_PATH
+from src.data_collection_bot.cloud_disk import upload_to_yandex_disk
+from src.data_collection_bot.config import DATA_TABLE_PATH, DISK_PATH
 
 
 async def save_records(
@@ -41,6 +42,11 @@ async def save_records(
         for i, param in enumerate(parameters):
             sheet.cell(row=i+2, column=1).value = param
 
+    current_row_names = [sheet.cell(row=i, column=1).value for i in range(2, sheet.max_row + 1)]
+    for param in parameters:
+        if param not in current_row_names:
+            sheet.cell(row=sheet.max_row + 1, column=1).value = param
+
     date_col = None
     for col in  range(2, sheet.max_column + 1):
         if sheet.cell(row=1, column=col).value == date:
@@ -63,3 +69,5 @@ async def save_records(
             sheet.cell(row=row, column=date_col).fill = fill
 
     book.save(DATA_TABLE_PATH)
+    upload_to_yandex_disk(DATA_TABLE_PATH, DISK_PATH)
+
