@@ -24,9 +24,11 @@
 ## Быстрый старт
 1. Клонируй репозиторий
   git clone https://github.com/Aurum68/DataCollectionBot.git
+
   cd DataCollectionBot
-2. Заполни переменные окружения
+3. Заполни переменные окружения
   - Создай .env:
+    '''
       TELEGRAM_TOKEN=телеграм_токен
       TELEGRAM_BOT_USERNAME=имя_бота
       MYSQL_USERNAME=имя_пользователя_бд
@@ -40,8 +42,11 @@
       REDIS_PORT=редис_порт
       TZ=Europe/Kaliningrad
       YANDEX_TOKEN=токен_яндекс_с_доступом_к_диску
+    '''
 3. Запусти всё через Docker Compose
+'''
   docker-compose up --build
+'''
   **Бот автоматически создаст необходимые файлы и структуру БД, выполнит миграции.**
 4. Проверь работу бота
   - Бот работает в Telegram по токену из .env
@@ -49,6 +54,7 @@
   - Все пользовательские .xlsx файлы сохраняются локально в ./data и на Яндекс.Диске
   - Файл приглашения администратора: admin_invite.txt в корне проекта
 5. docker-compose.yml ключевые сервисы
+'''
   services:
   init:
     build: .
@@ -98,7 +104,8 @@
       - ./data/data.xlsx:/app/data/data.xlsx
       - ./.env:/app/.env
     command: ["sh", "-c", "sleep 10 && python src/data_collection_bot/main.py"]
-    
+  '''
+  
 ## Особенности и советы
 - После первого запуска бот сам создаёт инвайт для администратора (admin_invite.txt)
 - Роли пользователей можно изменять через API/бота (через администратора)
