@@ -3,9 +3,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
 
-from src.data_collection_bot import UserService, User, Role, Parameter, Roles, RoleService, Rules
+from src.data_collection_bot import UserService, User, Role, Parameter, Roles, RoleService, Rules, RecordService, \
+    CreateRecordDTO
 from src.data_collection_bot.bot.states import PollStates
 from src.data_collection_bot.bot.keyboards import user_keyboard
+from src.data_collection_bot.exel import save_records
 
 
 async def daily_params_start_init(
@@ -13,19 +15,13 @@ async def daily_params_start_init(
         storage: RedisStorage,
         user_service: UserService,
         role_service: RoleService,
+        record_service: RecordService,
 ):
-    print("start daily params")
-    print(bot)
-    print(storage)
-    print(user_service)
-    print("Type in bad method ", type(user_service.model))
     user_ids: list[int] = [user.id for user in (await user_service.get_all())]
-    print("Всего пользователей:", len(user_ids))
     for user_id in user_ids:
         user: User = await user_service.get_by_id(user_id)
         print(user.telegram_id)
         if user.role.name == Roles.ADMIN.value: continue
-        print("Go", user.telegram_id)
         state: FSMContext = FSMContext(
             storage=storage,
             key=StorageKey(bot_id=bot.id,
@@ -39,8 +35,8 @@ async def daily_params_start_init(
             user=user,
             user_service=user_service,
             role_service=role_service,
+            record_service=record_service,
         )
-        print("success daily params", user.telegram_id)
 
 
 async def daily_params_start(
@@ -49,17 +45,18 @@ async def daily_params_start(
         user: User,
         user_service: UserService,
         role_service: RoleService,
+        record_service: RecordService,
 ):
     role: Role = user.role
     print(role.name)
-    await state.update_data(user_id=user.id, role_id=role.id, index=0, answers={"user_id": user.id})
+    await state.update_data(user_id=user.id, role_id=role.id, index=0, answers={"user_id": user.id, 'answers': {}})
     await ask_next_param(
         bot=bot,
         state=state,
         user_service=user_service,
-        role_service=role_service
+        role_service=role_service,
+        record_service=record_service,
     )
-    print("success ask", user.telegram_id)
 
 
 async def ask_next_param(
@@ -67,6 +64,7 @@ async def ask_next_param(
         state: FSMContext,
         user_service: UserService,
         role_service: RoleService,
+        record_service: RecordService
 ):
     data = await state.get_data()
     user_id: int = data['user_id']
@@ -78,6 +76,11 @@ async def ask_next_param(
 
     if index >= len(parameters):
         await bot.send_message(chat_id=user.telegram_id, text="Спасибо! Вы заполнили все параметры!")
+        await save_record(
+            data=data,
+            user_service=user_service,
+            record_service=record_service,
+        )
         await state.clear()
         return
 
@@ -102,6 +105,22 @@ async def ask_next_param(
         print("Error sending text:", user.telegram_id, e)
         traceback.print_exc()
 
+
+async def save_record(
+        data: dict,
+        user_service: UserService,
+        record_service: RecordService,
+):
+    answers: dict = data['answers']
+    user_id: int = answers['user_id']
+    answers_dict: dict = answers['answers']
+
+    record_dto: CreateRecordDTO = CreateRecordDTO(user_id=user_id, data=answers_dict)
+    await record_service.create(record_dto)
+
+    user: User = await user_service.get_by_id(user_id)
+
+    await save_records(user_pseudonym=user.pseudonym, answers=answers_dict)
 
 
 async def prepare_text(parameters: list[Parameter], index: int) -> str:

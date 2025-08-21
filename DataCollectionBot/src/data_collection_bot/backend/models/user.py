@@ -21,6 +21,7 @@ class User(IdentifiedBase):
     last_name: Mapped[str] = Column(String(255), nullable=True)
     patronymic: Mapped[str] = Column(String(255), nullable=True)
     birthday: Mapped[datetime] = Column(DateTime, nullable=True)
+    pseudonym:Mapped[str] = Column(String(255), nullable=True)
     role_id: Mapped[int] = Column(Integer, ForeignKey('roles.id'), nullable=False)
     role: Mapped["Role"] = relationship('Role', back_populates='users')
     invite_id: Mapped[int] = Column(Integer, ForeignKey('invites.id'), unique=True, nullable=True)

@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 class Record(IdentifiedBase):
     __tablename__ = 'records'
-    # id: int = Column(Integer, primary_key=True)
     user_id: Mapped[int] = Column(Integer, ForeignKey('users.id'))
     user: Mapped["User"] = relationship('User', back_populates='records')
     data: Mapped[dict] = Column(JSON)

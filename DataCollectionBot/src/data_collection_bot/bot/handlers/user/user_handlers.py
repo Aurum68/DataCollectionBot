@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Type
 
 from aiogram import Router, Bot, F
@@ -5,7 +6,8 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from src.data_collection_bot import (RoleService, UserService, Parameter, ValidatorFactory, Norm, Validator, NormFactory)
+from src.data_collection_bot import (RoleService, UserService, Parameter, ValidatorFactory, Norm, Validator,
+                                     NormFactory, RecordService)
 from src.data_collection_bot.bot.states import PollStates
 from src.data_collection_bot.bot.service import ask_next_param
 from src.data_collection_bot.bot.utils import safe_message_delete
@@ -23,6 +25,7 @@ async def user_enter_message(
         state: FSMContext,
         user_service: UserService,
         role_service: RoleService,
+        record_service: RecordService,
         bot: Bot
 ):
     data = await state.get_data()
@@ -36,25 +39,15 @@ async def user_enter_message(
 
     validator_cls: Type[Validator] = ValidatorFactory.get_class(parameter.rule)
 
-    if not validator_cls.validate(answer):
+    if not validator_cls.validate(answer) or parameter.choice is not None:
         await message.answer(text=f"Введено неверное значение для параметра <b>{parameter.name}</b>.\n"
                                   f"Введите <i>{parameter.rule}</i>", parse_mode="html")
         await ask_next_param(
             bot=bot,
             state=state,
             user_service=user_service,
-            role_service=role_service
-        )
-        return
-
-    if parameter.choice is not None:
-        await message.answer(text=f"Введено неверное значение для параметра <b>{parameter.name}</b>.\n"
-                                  f"Введите <i>{parameter.rule}</i>", parse_mode="html")
-        await ask_next_param(
-            bot=bot,
-            state=state,
-            user_service=user_service,
-            role_service=role_service
+            role_service=role_service,
+            record_service=record_service,
         )
         return
 
@@ -63,6 +56,7 @@ async def user_enter_message(
         state=state,
         user_service=user_service,
         role_service=role_service,
+        record_service=record_service,
         answers=answers,
         index=index,
         answer=answer,
@@ -76,6 +70,7 @@ async def user_answer_callback(
         state: FSMContext,
         user_service: UserService,
         role_service: RoleService,
+        record_service: RecordService,
         bot: Bot
 ):
     await callback_query.answer()
@@ -96,6 +91,7 @@ async def user_answer_callback(
         state=state,
         user_service=user_service,
         role_service=role_service,
+        record_service=record_service,
         answers=answers,
         index=index,
         answer=answer,
@@ -109,6 +105,7 @@ async def save_answer(
         state: FSMContext,
         user_service: UserService,
         role_service: RoleService,
+        record_service: RecordService,
         answers: dict,
         index: int,
         answer: str,
@@ -118,10 +115,11 @@ async def save_answer(
 
     record: dict = {
         "answer": answer,
-        "is_norm": norm.is_norm(answer)
+        "is_norm": norm.is_norm(answer),
+        "date": datetime.now().strftime("%Y-%m-%d"),
     }
 
-    answers[index] = record
+    answers["answers"][parameter.name] = record
 
     index += 1
     await state.update_data(answers=answers, index=index)
@@ -130,5 +128,6 @@ async def save_answer(
         bot=bot,
         state=state,
         user_service=user_service,
-        role_service=role_service
+        role_service=role_service,
+        record_service=record_service,
     )

@@ -9,5 +9,6 @@ class CreateUserDTO(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     birthday: Optional[datetime] = None
+    pseudonym: Optional[str] = None
     role_id: int
     invite_id: Optional[int] = None

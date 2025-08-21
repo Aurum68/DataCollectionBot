@@ -9,4 +9,5 @@ class UpdateUserDTO(BaseModel):
     last_name: Optional[str] = None
     patronymic: Optional[str] = None
     birthday: Optional[datetime] = None
+    pseudonym: Optional[str] = None
     role_id: Optional[int] = None

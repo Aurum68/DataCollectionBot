@@ -9,7 +9,8 @@ from redis.asyncio import Redis
 
 from src.data_collection_bot.config import *
 from src.data_collection_bot import UserRepository, AsyncSessionLocal, RoleRepository, UserService, RoleService, \
-    ParameterRepository, InviteRepository, InviteService, BotMiddleware, ParameterService, daily_params_start_init
+    ParameterRepository, InviteRepository, InviteService, BotMiddleware, ParameterService, daily_params_start_init, \
+    RecordRepository, RecordService
 from src.data_collection_bot.bot.middleware.db_session_middleware import DBSessionMiddleware
 from src.data_collection_bot.database import DBManager
 from src.data_collection_bot.database import Base, get_engine
@@ -117,13 +118,16 @@ async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
         parameter_repository = ParameterRepository(session)
         role_service = RoleService(role_repository, parameter_repository)
 
+        record_repository = RecordRepository(session)
+        record_service = RecordService(record_repository)
+
         print("Add job on", now.hour, now.minute)
         sheduler.add_job(
             func=daily_params_start_init,
             trigger='cron',
             hour=now.hour,
             minute=now.minute + 4,
-            args=(bot, storage, user_service, role_service)
+            args=(bot, storage, user_service, role_service, record_service)
         )
     sheduler.start()
     print('Sheduler started.')

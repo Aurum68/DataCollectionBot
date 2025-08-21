@@ -74,10 +74,11 @@ async def user_enter_birthday(msg: Message, state: FSMContext, user_service: Use
     first_name = data.get("first_name")
     last_name = data.get("last_name")
     patronymic = data.get("patronymic")
+    pseudonym = create_pseudonym(first_name, last_name, patronymic, bd)
 
     user: User = await user_service.get_user_by_telegram_id(user_tg_id)
 
-    user_dto = UpdateUserDTO(first_name=first_name, last_name=last_name, patronymic=patronymic, birthday=bd)
+    user_dto = UpdateUserDTO(first_name=first_name, last_name=last_name, patronymic=patronymic, birthday=bd, pseudonym=pseudonym)
 
     await user_service.update(item_id=user.id, item=user_dto)
 
@@ -97,3 +98,12 @@ def check_birthday(birthday: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def create_pseudonym(
+        first_name: str,
+        last_name: str,
+        patronymic: str,
+        birthday: datetime,
+):
+    return f"{last_name[0].upper()}{first_name[0].upper()}{patronymic[0].upper()}{birthday.year}"

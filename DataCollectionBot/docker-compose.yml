@@ -1,4 +1,11 @@
 services:
+  init:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./scripts/create_data_file.py:/app/scripts/create_data_file.py
+    working_dir: /app
+    command: python ./scripts/create_data_file.py
   mysql:
     image: mysql:8.0
     env_file:
@@ -21,12 +28,18 @@ services:
   bot:
     build: .
     depends_on:
-      - mysql
-      - migrations
-      - redis
+      init:
+        condition: service_completed_successfully
+      mysql:
+        condition: service_started
+      migrations:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
     env_file:
       - .env
     volumes:
       - ./data/parameters.xlsx:/app/data/parameters.xlsx
+      - ./data/data.xlsx:/app/data/data.xlsx
       - ./.env:/app/.env
     command: ["sh", "-c", "sleep 10 && python src/data_collection_bot/main.py"]

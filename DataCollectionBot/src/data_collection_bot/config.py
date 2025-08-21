@@ -18,3 +18,7 @@ VALIDATORS = [
 PARAMETERS_TABLE_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'parameters.xlsx')
 )
+
+DATA_TABLE_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'data.xlsx')
+)
