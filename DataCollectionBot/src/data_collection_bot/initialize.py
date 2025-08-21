@@ -61,6 +61,10 @@ async def add_parameters_from_xlsx(
 
     for index, row in df.iterrows():
         name = str(row['name'])
+        parameter: Parameter = await parameter_service.get_parameter_by_name(name=name)
+        if parameter is not None:
+            continue
+
         roles = str(row['roles'])
         rule = str(row['rule'])
         choice = str(row['choice']) if pd.notna(row['choice']) else None
