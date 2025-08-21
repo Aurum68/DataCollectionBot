@@ -10,7 +10,7 @@ async def initialize(
         role_service: RoleService,
         invite_service: InviteService,
         parameter_service: ParameterService,
-        admin_telegram_id: int,
+        admin_telegram_id: int | list[int],
 ):
     await ensure_roles_exists(role_service=role_service)
     await add_parameters_from_xlsx(
@@ -41,16 +41,27 @@ async def ensure_admin_user_exists(
         user_service: UserService,
         role_service: RoleService,
         invite_service: InviteService,
-        admin_telegram_id: int,
+        admin_telegram_id: int | list[int],
 ):
-    admin: User = await user_service.get_user_by_telegram_id(admin_telegram_id)
-    if admin is None:
-        role: Role = await role_service.get_role_by_name(Roles.ADMIN.value)
+    admin_ids: list[int] = admin_telegram_id if isinstance(admin_telegram_id, list) else [admin_telegram_id]
 
+    links = []
+    for ad_id in admin_ids:
+        admin: User = await user_service.get_user_by_telegram_id(ad_id)
+        link = await create_admin_invite(admin, invite_service, role_service)
+        if link is not None:
+            links.append(link)
+
+    with open(ADMIN_INVITE_FILE_PATH, 'w') as f:
+        f.write('\n'.join(links))
+
+
+async def create_admin_invite(user: User, invite_service: InviteService, role_service: RoleService):
+    if user is None:
+        role: Role = await role_service.get_role_by_name(Roles.ADMIN.value)
         link: str = await invite_service.generate_invite_link(role=role)
-        with open(ADMIN_INVITE_FILE_PATH, 'w') as file:
-            file.write(link)
-            file.close()
+        return link
+    return None
 
 
 async def add_parameters_from_xlsx(

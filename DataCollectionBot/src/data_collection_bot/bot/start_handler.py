@@ -12,6 +12,7 @@ from aiogram.types import Message
 from src.data_collection_bot import UserService, InviteService, CreateUserDTO, RoleService, Role, Invite, Roles, User, \
     UpdateInviteDTO
 from src.data_collection_bot.bot.handlers.ui import admin_start, user_start
+from src.data_collection_bot.config import ADMIN_TELEGRAM_ID
 
 router = Router()
 
@@ -24,6 +25,7 @@ ERROR_INVITE = "🚫Доступ запрещён.\n⚠️Некорректна
 ERROR_EXPIRED = "🚫Доступ запрещён.\n⏰Истёк срок действия ссылки!"
 ERROR_USED = "🚫Доступ запрещён.\nСсылка уже использована."
 ERROR_REGISTERED = "Вы уже зарегистрированы!"
+ERROR_ACCESS = "🚫Доступ запрещён.\nВы не админ."
 
 
 @router.message(Command(commands=['start']))
@@ -61,6 +63,9 @@ async def start(
         return
     if invite.is_used:
         await msg.answer(ERROR_USED)
+        return
+    if (await role_service.get_by_id(invite.role_id)).name == Roles.ADMIN.value and msg.from_user.id not in ADMIN_TELEGRAM_ID:
+        await msg.answer(ERROR_ACCESS)
         return
 
     invite_dto: UpdateInviteDTO = UpdateInviteDTO(is_used=True)

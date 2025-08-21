@@ -10,7 +10,7 @@ MYSQL_PASSWORD=os.getenv("MYSQL_ROOT_PASSWORD")
 MYSQL_HOST=os.getenv("MYSQL_HOST")
 MYSQL_PORT=os.getenv("MYSQL_PORT")
 MYSQL_DATABASE=os.getenv("MYSQL_DATABASE")
-ADMIN_TELEGRAM_ID = os.getenv("ADMIN_TELEGRAM_ID")
+ADMIN_TELEGRAM_ID = [int(i) for i in os.getenv("ADMIN_TELEGRAM_ID").split(',') if i.strip()]
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 YANDEX_TOKEN = os.getenv("YANDEX_TOKEN")
 
