@@ -14,8 +14,10 @@
 |-|-|
 |Python 3.12+|Язык программирования|
 |aiogram|Telegram-бот|
+|sqlalchemy|Абстракция и ORM для работы с базой|
 |aiomysql|Асинхронная работа с MySQL|
 |alembic|Миграции MySQL|
+|apscheduler|Планировщик задач (scheduled jobs)|
 |yadisk|Работа с Яндекс.Диском по API|
 |openpyxl|Работа с Excel|
 |redis|Кеш/очередь сообщений|
