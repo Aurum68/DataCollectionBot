@@ -13,7 +13,7 @@
 |Технология|Описание|
 |-|-|
 |Python 3.12+|Язык программирования|
-|aiogram/telethon|Telegram-бот|
+|aiogram|Telegram-бот|
 |aiomysql|Асинхронная работа с MySQL|
 |alembic|Миграции MySQL|
 |yadisk|Работа с Яндекс.Диском по API|
