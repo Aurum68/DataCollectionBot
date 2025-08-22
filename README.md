@@ -113,6 +113,9 @@
 - Для обновления проекта:
     1. git pull
     2. docker-compose up --build
+- Для изменения времени отправки сообщений:
+    1. Откройте src/data_collection_bot/config.py
+    2. Измените параметры HOUR и MINUTE
 
 ## Обратная связь
 Если есть вопросы/баги — создавай issue на GitHub или пиши @tonledov в Telegram.
