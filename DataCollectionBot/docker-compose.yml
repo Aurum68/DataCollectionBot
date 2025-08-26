@@ -48,7 +48,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data/parameters.xlsx:/app/data/parameters.xlsx
-      - ./data/data.xlsx:/app/data/data.xlsx
-      - ./.env:/app/.env
+      - .:/app
     command: ["sh", "-c", "sleep 10 && python src/data_collection_bot/main.py"]

@@ -80,7 +80,7 @@ async def main():
 
 
 async def db_init(db_manager: DBManager):
-    await db_manager.db_clear()
+    # await db_manager.db_clear()
     await db_manager.db_init()
 
 
