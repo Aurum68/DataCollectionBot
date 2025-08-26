@@ -1,0 +1,8 @@
+FROM python:3.12
+
+WORKDIR /app
+
+COPY scripts/create_data_file.py ./scripts/create_data_file.py
+RUN pip install openpyxl
+
+CMD ["python", "./scripts/create_data_file.py"]

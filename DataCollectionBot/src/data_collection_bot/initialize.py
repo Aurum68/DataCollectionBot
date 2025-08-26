@@ -51,9 +51,11 @@ async def ensure_admin_user_exists(
         link = await create_admin_invite(admin, invite_service, role_service)
         if link is not None:
             links.append(link)
+            print("Ссылка для админа: {}".format(link))
 
     with open(ADMIN_INVITE_FILE_PATH, 'w') as f:
         f.write('\n'.join(links))
+        f.write('\n')
 
 
 async def create_admin_invite(user: User, invite_service: InviteService, role_service: RoleService):

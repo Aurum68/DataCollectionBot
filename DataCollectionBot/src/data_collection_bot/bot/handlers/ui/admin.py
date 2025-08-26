@@ -9,3 +9,9 @@ async def admin_start(msg: Message):
     await msg.answer(text=text)
     text = "Выбери, что ты хочешь сделать."
     await msg.answer(text=text, reply_markup=keyboard)
+
+
+async def admin_has_registered(msg: Message):
+    keyboard: InlineKeyboardMarkup = generate_admin_start_keyboard()
+    text = "Выбери следующее действие."
+    await msg.answer(text=text, reply_markup=keyboard)

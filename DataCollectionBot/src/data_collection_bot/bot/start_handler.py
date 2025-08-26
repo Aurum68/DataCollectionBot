@@ -11,7 +11,7 @@ from aiogram.types import Message
 
 from src.data_collection_bot import UserService, InviteService, CreateUserDTO, RoleService, Role, Invite, Roles, User, \
     UpdateInviteDTO
-from src.data_collection_bot.bot.handlers.ui import admin_start, user_start
+from src.data_collection_bot.bot.handlers.ui import admin_start, user_start, admin_has_registered
 from src.data_collection_bot.config import ADMIN_TELEGRAM_ID
 
 router = Router()
@@ -37,8 +37,11 @@ async def start(
         invite_service: InviteService,
         role_service: RoleService
 ):
-    if not (await user_service.get_user_by_telegram_id(msg.from_user.id)) is None:
+    user: User = await user_service.get_user_by_telegram_id(msg.from_user.id)
+    if user is not None:
         await msg.answer(ERROR_REGISTERED)
+        if (await role_service.get_by_id(user.role_id)).name == Roles.ADMIN.value:
+            await admin_has_registered(msg)
         return
 
     args: str = command.args

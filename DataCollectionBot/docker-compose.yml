@@ -1,6 +1,14 @@
 services:
+  buildapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: myapp:latest
+    command: echo "I'm just a build helper"
   init:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.init
     volumes:
       - ./data:/app/data
       - ./scripts/create_data_file.py:/app/scripts/create_data_file.py
@@ -13,9 +21,10 @@ services:
     ports:
       - "3306:3306"
   migrations:
-    build: .
+    image: myapp:latest
     depends_on:
-      - mysql
+      mysql:
+        condition: service_started
     command: alembic upgrade head
     env_file:
       - .env
@@ -26,7 +35,7 @@ services:
     ports:
       - "6379:6379"
   bot:
-    build: .
+    image: myapp:latest
     depends_on:
       init:
         condition: service_completed_successfully
