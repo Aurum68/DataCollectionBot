@@ -25,11 +25,15 @@
 
 ## Быстрый старт
 1. Клонируй репозиторий
+  ```
   git clone https://github.com/Aurum68/DataCollectionBot.git
-
-  cd DataCollectionBot
-3. Заполни переменные окружения
-  - Создай .env:
+  cd DataCollectionBot/DataCollectionBot
+```
+2. Заполни переменные окружения
+  ```
+  cp .env.example .env
+  ```
+  - Заполни .env:
     ```
       TELEGRAM_TOKEN=телеграм_токен
       TELEGRAM_BOT_USERNAME=имя_бота
@@ -46,10 +50,18 @@
       YANDEX_TOKEN=токен_яндекс_с_доступом_к_диску
     ```
 3. Запусти всё через Docker Compose
-```
+  ```
   docker-compose up --build
-```
+  ```
+  или
+  ```
+  docker compose up --build -d
+  ```
   **Бот автоматически создаст необходимые файлы и структуру БД, выполнит миграции.**
+  Если сервис migrations завершится с кодом 1 - выполни
+  ```
+  docker compose up
+  ```
 4. Проверь работу бота
   - Бот работает в Telegram по токену из .env
   - Данные пользователей хранятся в базе MySQL (контейнер mysql)
@@ -58,38 +70,43 @@
 5. docker-compose.yml ключевые сервисы
 ```
   services:
+  buildapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: myapp:latest
+    command: echo "I'm just a build helper"
   init:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.init
     volumes:
       - ./data:/app/data
       - ./scripts/create_data_file.py:/app/scripts/create_data_file.py
     working_dir: /app
     command: python ./scripts/create_data_file.py
-
   mysql:
     image: mysql:8.0
     env_file:
       - .env
     ports:
-      - "3306:3306" # Должно совпадать с MYSQL_PORT из .env
-
+      - "3306:3306"
   migrations:
-    build: .
+    image: myapp:latest
     depends_on:
-      - mysql
+      mysql:
+        condition: service_started
     command: alembic upgrade head
     env_file:
       - .env
     volumes:
       - .:/app
-
   redis:
     image: redis:latest
     ports:
-      - "6379:6379" # Должно совпадать с REDIS_PORT из .env
-
+      - "6379:6379"
   bot:
-    build: .
+    image: myapp:latest
     depends_on:
       init:
         condition: service_completed_successfully
@@ -102,9 +119,7 @@
     env_file:
       - .env
     volumes:
-      - ./data/parameters.xlsx:/app/data/parameters.xlsx
-      - ./data/data.xlsx:/app/data/data.xlsx
-      - ./.env:/app/.env
+      - .:/app
     command: ["sh", "-c", "sleep 10 && python src/data_collection_bot/main.py"]
   ```
   
