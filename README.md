@@ -133,6 +133,7 @@
 - Для изменения времени отправки сообщений:
     1. Откройте src/data_collection_bot/config.py
     2. Измените параметры HOUR и MINUTE
+    3. Выполнить ```docker-compose up --build```
 
 ## Обратная связь
 Если есть вопросы/баги — создавай issue на GitHub или пиши @tonledov в Telegram.
