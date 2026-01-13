@@ -110,6 +110,17 @@ async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
     now = datetime.now(pytz.timezone('Europe/Kaliningrad'))
     print('Setup time:', now)
     sheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
+
+    print("Add job on", now.hour, now.minute)
+    sheduler.add_job(
+        func=daily_params_start_init,
+        trigger='cron',
+        hour=HOUR,
+        minute=MINUTE,
+        args=(bot, storage)
+    )
+
+    '''
     async with AsyncSessionLocal() as session:
         user_repository = UserRepository(session)
         user_service = UserService(user_repository)
@@ -129,6 +140,7 @@ async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
             minute=MINUTE,
             args=(bot, storage, user_service, role_service, record_service)
         )
+        '''
     sheduler.start()
     print('Sheduler started.')
     await asyncio.Event().wait()

@@ -3,20 +3,22 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
 
+from src. data_collection_bot. database. db_config import AsyncSessionLocal
+
 from src.data_collection_bot import UserService, User, Role, Parameter, Roles, RoleService, Rules, RecordService, \
-    CreateRecordDTO
+    CreateRecordDTO, UserRepository, RoleRepository, ParameterRepository, RecordRepository
 from src.data_collection_bot.bot.states import PollStates
 from src.data_collection_bot.bot.keyboards import user_keyboard
 from src.data_collection_bot.exel import save_records
 
-
+'''
 async def daily_params_start_init(
         bot: Bot,
         storage: RedisStorage,
         user_service: UserService,
         role_service: RoleService,
         record_service: RecordService,
-):
+): 
     user_ids: list[int] = [user.id for user in (await user_service.get_all())]
     for user_id in user_ids:
         user: User = await user_service.get_by_id(user_id)
@@ -37,6 +39,42 @@ async def daily_params_start_init(
             role_service=role_service,
             record_service=record_service,
         )
+'''
+async def daily_params_start_init(
+        bot: Bot,
+        storage: RedisStorage,
+):
+    async with AsyncSessionLocal() as session:
+        user_repository = UserRepository(session)
+        user_service = UserService(user_repository)
+
+        role_repository = RoleRepository(session)
+        parameter_repository = ParameterRepository(session)
+        role_service = RoleService(role_repository, parameter_repository)
+
+        record_repository = RecordRepository(session)
+        record_service = RecordService(record_repository)
+
+        user_ids: list[int] = [user.id for user in (await user_service.get_all())]
+        for user_id in user_ids:
+            user: User = await user_service.get_by_id(user_id)
+            print(user.telegram_id)
+            if user.role.name == Roles.ADMIN.value: continue
+            state: FSMContext = FSMContext(
+                storage=storage,
+                key=StorageKey(bot_id=bot.id,
+                               chat_id=user.telegram_id,
+                               user_id=user.telegram_id
+                               )
+            )
+            await daily_params_start(
+                bot=bot,
+                state=state,
+                user=user,
+                user_service=user_service,
+                role_service=role_service,
+                record_service=record_service,
+            )
 
 
 async def daily_params_start(
