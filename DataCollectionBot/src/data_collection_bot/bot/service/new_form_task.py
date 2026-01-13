@@ -40,6 +40,7 @@ async def daily_params_start_init(
             record_service=record_service,
         )
 '''
+
 async def daily_params_start_init(
         bot: Bot,
         storage: RedisStorage,

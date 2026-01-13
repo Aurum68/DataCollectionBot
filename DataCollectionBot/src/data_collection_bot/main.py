@@ -140,6 +140,7 @@ async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
             minute=MINUTE,
             args=(bot, storage, user_service, role_service, record_service)
         )
+        
         '''
     sheduler.start()
     print('Sheduler started.')
