@@ -19,7 +19,7 @@ services:
     env_file:
       - .env
     ports:
-      - "3306:3306"
+      - "3307:3306"
   migrations:
     image: myapp:latest
     depends_on:

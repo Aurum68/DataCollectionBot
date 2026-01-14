@@ -1,3 +1,6 @@
+from datetime import datetime
+
+import pytz
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
@@ -45,6 +48,7 @@ async def daily_params_start_init(
         bot: Bot,
         storage: RedisStorage,
 ):
+    print(f"SCHEDULER JOB TICK: {datetime.now(pytz.timezone('Europe/Kaliningrad'))}")
     async with AsyncSessionLocal() as session:
         user_repository = UserRepository(session)
         user_service = UserService(user_repository)

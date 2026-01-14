@@ -100,7 +100,7 @@ from .exel import (save_records,)
 from .cloud_disk import upload_to_yandex_disk
 from .initialize import (add_parameters_from_xlsx, ensure_admin_user_exists,
                          ensure_roles_exists, initialize,)
-from .main import (db_init, init, main, setup_sheduler,)
+from .main import (db_init, init, main, )#setup_sheduler,
 
 __all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
            'BaseRepository', 'BaseServiceNonUpdating', 'BaseServiceUpdating',
@@ -193,8 +193,8 @@ __all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
            'initialize', 'is_admin_cb', 'is_admin_msg', 'is_norm_correct',
            'main', 'prepare_text', 'role_parameters', 'router',
            'safe_message_delete', 'save_answer', 'save_record', 'save_records',
-           'setup_sheduler', 'start', 'user_answer_callback',
+            'start', 'user_answer_callback',
            'user_enter_birthday', 'user_enter_first_name',
            'user_enter_last_name', 'user_enter_message',
            'user_enter_patronymic', 'user_keyboard', 'user_start',
-           'validate_norm_row', 'upload_to_yandex_disk', ]
+           'validate_norm_row', 'upload_to_yandex_disk', ]#'setup_sheduler',
