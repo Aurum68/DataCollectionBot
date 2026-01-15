@@ -65,18 +65,14 @@ async def main():
     dp.include_router(router=user_router())
 
     try:
-        scheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
-        scheduler.add_job(
-            func=daily_params_start_init,
-            trigger='cron',
-            hour=HOUR,
-            minute=MINUTE,
-            args=(bot, storage)
-        )
-        scheduler.start()
-        logging.info('Scheduler started.')
+        # await setup_scheduler(bot=bot, storage=storage)
         logging.info("Starting bot...")
-        # sheduler_task = asyncio.create_task(setup_sheduler(bot=bot, storage=storage))
+        scheduler_task = asyncio.create_task(setup_scheduler(bot=bot, storage=storage))
+        polling_task = asyncio.create_task(dp.start_polling(bot))
+        # Ждём оба таска
+        await asyncio.gather(
+            polling_task,
+            scheduler_task)
         await dp.start_polling(bot)
     except KeyboardInterrupt:
         logging.info("Bot stopped by user...")
@@ -115,46 +111,17 @@ async def init() -> None:
         )
 
 
-# async def setup_sheduler(bot: Bot, storage: RedisStorage) -> None:
-#     print('In setup_sheduler')
-#     now = datetime.now(pytz.timezone('Europe/Kaliningrad'))
-#     print('Setup time:', now)
-#     sheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
-#
-#     print("Add job on", now.hour, now.minute)
-#     sheduler.add_job(
-#         func=daily_params_start_init,
-#         trigger='cron',
-#         hour=HOUR,
-#         minute=MINUTE,
-#         args=(bot, storage)
-#     )
-#
-#     '''
-#     async with AsyncSessionLocal() as session:
-#         user_repository = UserRepository(session)
-#         user_service = UserService(user_repository)
-#
-#         role_repository = RoleRepository(session)
-#         parameter_repository = ParameterRepository(session)
-#         role_service = RoleService(role_repository, parameter_repository)
-#
-#         record_repository = RecordRepository(session)
-#         record_service = RecordService(record_repository)
-#
-#         print("Add job on", now.hour, now.minute)
-#         sheduler.add_job(
-#             func=daily_params_start_init,
-#             trigger='cron',
-#             hour=HOUR,
-#             minute=MINUTE,
-#             args=(bot, storage, user_service, role_service, record_service)
-#         )
-#
-#         '''
-#     sheduler.start()
-#     print('Sheduler started.')
-#     await asyncio.Event().wait()
+async def setup_scheduler(bot: Bot, storage: RedisStorage) -> None:
+    scheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
+    scheduler.add_job(
+        func=daily_params_start_init,
+        trigger='cron',
+        hour=HOUR,
+        minute=MINUTE,
+        args=(bot, storage)
+    )
+    scheduler.start()
+    logging.info('Scheduler started.')
 
 
 if __name__ == '__main__':
