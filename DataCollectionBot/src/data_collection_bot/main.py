@@ -118,7 +118,9 @@ async def setup_scheduler(bot: Bot, storage: RedisStorage) -> None:
         trigger='cron',
         hour=HOUR,
         minute=MINUTE,
-        args=(bot, storage)
+        args=(bot, storage),
+        id='daily_params_start_init',
+        replace_existing=True
     )
     scheduler.start()
     logging.info('Scheduler started.')
