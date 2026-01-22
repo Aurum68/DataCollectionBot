@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from datetime import datetime
 
 import pytz
@@ -9,7 +10,7 @@ from redis.asyncio import Redis
 
 from src.data_collection_bot.config import *
 from src.data_collection_bot import UserRepository, AsyncSessionLocal, RoleRepository, UserService, RoleService, \
-    ParameterRepository, InviteRepository, InviteService, BotMiddleware, ParameterService, daily_params_start_init, \
+    ParameterRepository, InviteRepository, InviteService, BotMiddleware, ParameterService, daily_params_job, \
     RecordRepository, RecordService
 from src.data_collection_bot.bot.middleware.db_session_middleware import DBSessionMiddleware
 from src.data_collection_bot.database import DBManager
@@ -28,18 +29,22 @@ from src.data_collection_bot.initialize import initialize
 import logging
 
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename='../../bot.log',
-    filemode='w',
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-
-logging.getLogger('apscheduler').setLevel(logging.DEBUG)
-
-
 async def main():
+
+    logging.basicConfig(
+        level=logging.INFO,
+        # filename='../../bot.log',
+        # filemode='w',
+        stream=sys.stdout,
+        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        force=True
+    )
+
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+    logging.getLogger('apscheduler').setLevel(logging.WARNING)
+
+    logging.info("Starting bot... Логи настроены!")
     db_manager = DBManager(get_engine(), Base)
 
     await db_init(db_manager)
@@ -114,7 +119,7 @@ async def init() -> None:
 async def setup_scheduler(bot: Bot, storage: RedisStorage) -> None:
     scheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Kaliningrad'))
     scheduler.add_job(
-        func=daily_params_start_init,
+        func=daily_params_job,
         trigger='cron',
         hour=HOUR,
         minute=MINUTE,

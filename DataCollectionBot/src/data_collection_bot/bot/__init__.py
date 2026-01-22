@@ -74,7 +74,7 @@ from .keyboards import (generate_admin_all_invite_keyboard,
                         generate_checkbox_keyboard, user_keyboard,)
 from .middleware import (BotMiddleware, DBSessionMiddleware,)
 from .service import (ask_next_param, daily_params_start,
-                      daily_params_start_init, prepare_text, save_record,)
+                      daily_params_start_init, prepare_text, save_record, daily_params_job)
 from .start_handler import (ERROR_EXPIRED, ERROR_INVITE, ERROR_REGISTERED,
                             ERROR_USED, create_user, decode_args, get_router,
                             router, start,)
@@ -126,7 +126,7 @@ __all__ = ['BotMiddleware', 'DBSessionMiddleware', 'ERROR_ACCESS',
            'admin_role_info', 'admin_send_invite_link', 'admin_start',
            'admin_user', 'admin_user_delete', 'ask_next_param',
            'awaiting_enter_role_name', 'check_birthday', 'choosing_new_norm',
-           'create_pseudonym', 'create_user', 'daily_params_start',
+           'create_pseudonym', 'create_user', 'daily_params_job', 'daily_params_start',
            'daily_params_start_init', 'decode_args',
            'generate_admin_all_invite_keyboard',
            'generate_admin_all_parameters_keyboard',

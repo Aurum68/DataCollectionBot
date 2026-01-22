@@ -1,7 +1,11 @@
+import asyncio
+import logging
+import traceback
 from datetime import datetime
 
 import pytz
 from aiogram import Bot
+from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
@@ -14,41 +18,12 @@ from src.data_collection_bot.bot.states import PollStates
 from src.data_collection_bot.bot.keyboards import user_keyboard
 from src.data_collection_bot.exel import save_records
 
-'''
-async def daily_params_start_init(
-        bot: Bot,
-        storage: RedisStorage,
-        user_service: UserService,
-        role_service: RoleService,
-        record_service: RecordService,
-): 
-    user_ids: list[int] = [user.id for user in (await user_service.get_all())]
-    for user_id in user_ids:
-        user: User = await user_service.get_by_id(user_id)
-        print(user.telegram_id)
-        if user.role.name == Roles.ADMIN.value: continue
-        state: FSMContext = FSMContext(
-            storage=storage,
-            key=StorageKey(bot_id=bot.id,
-                           chat_id=user.telegram_id,
-                           user_id=user.telegram_id
-                           )
-        )
-        await daily_params_start(
-            bot=bot,
-            state=state,
-            user=user,
-            user_service=user_service,
-            role_service=role_service,
-            record_service=record_service,
-        )
-'''
 
-async def daily_params_start_init(
+async def daily_params_job(
         bot: Bot,
         storage: RedisStorage,
 ):
-    print(f"SCHEDULER JOB TICK: {datetime.now(pytz.timezone('Europe/Kaliningrad'))}")
+    logging.info(f"SCHEDULER JOB TICK: {datetime.now(pytz.timezone('Europe/Kaliningrad'))}")
     async with AsyncSessionLocal() as session:
         user_repository = UserRepository(session)
         user_service = UserService(user_repository)
@@ -60,11 +35,37 @@ async def daily_params_start_init(
         record_repository = RecordRepository(session)
         record_service = RecordService(record_repository)
 
-        user_ids: list[int] = [user.id for user in (await user_service.get_all())]
-        for user_id in user_ids:
+        try:
+            await daily_params_start_init(
+                bot, storage, user_service, role_service, record_service
+            )
+        except Exception as e:
+            logging.error(f"Произошла глобальная ошибка в задаче daily_params_job: {e}", exc_info=True)
+
+
+
+async def daily_params_start_init(
+        bot: Bot,
+        storage: RedisStorage,
+        user_service: UserService,
+        role_service: RoleService,
+        record_service: RecordService,
+):
+    user_ids: list[int] = [user.id for user in (await user_service.get_all())]
+    for user_id in user_ids:
+        try:
             user: User = await user_service.get_by_id(user_id)
-            print(user.telegram_id)
-            if user.role.name == Roles.ADMIN.value: continue
+
+            if not user or not user.telegram_id:
+                logging.warning(f"Пропускаем пользователя с ID={user_id}, так как нет telegram_id.")
+                continue
+
+            if user.role.name == Roles.ADMIN.value:
+                logging.info(f"Пропускаем админа с ID={user_id}.")
+                continue
+
+            logging.info(f"Обрабатываем пользователя: ID={user.id}, TelegramID={user.telegram_id}")
+
             state: FSMContext = FSMContext(
                 storage=storage,
                 key=StorageKey(bot_id=bot.id,
@@ -80,6 +81,12 @@ async def daily_params_start_init(
                 role_service=role_service,
                 record_service=record_service,
             )
+            await asyncio.sleep(0.1)
+        except TelegramAPIError as e:
+            logging.error(f"Ошибка Telegram API для пользователя ID={user_id}: {e}")
+        except Exception as e:
+            logging.error(f"Критическая ошибка при обработке пользователя ID={user_id}: {e}")
+            logging.debug(traceback.format_exc())
 
 
 async def daily_params_start(
@@ -136,8 +143,8 @@ async def ask_next_param(
             return
         except Exception as e:
             import traceback
-            print("Error sending text:", user.telegram_id, e)
-            traceback.print_exc()
+            logging.error(f"Не удалось отправить сообщение пользователю ID={user.id} (TG_ID={user.telegram_id}). Ошибка: {e}")
+            logging.debug(traceback.format_exc())
 
     try:
         keyboard = user_keyboard(choice=parameters[index].choice.split(';'))
@@ -145,8 +152,8 @@ async def ask_next_param(
         await state.set_state(PollStates.waiting_answer)
     except Exception as e:
         import traceback
-        print("Error sending text:", user.telegram_id, e)
-        traceback.print_exc()
+        logging.error(f"Не удалось отправить сообщение пользователю ID={user.id} (TG_ID={user.telegram_id}). Ошибка: {e}")
+        logging.debug(traceback.format_exc())
 
 
 async def save_record(

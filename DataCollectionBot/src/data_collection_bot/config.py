@@ -28,5 +28,5 @@ ADMIN_INVITE_FILE_PATH = os.path.abspath(
 
 DISK_PATH = "/app/data.xlsx"
 
-HOUR = 17
-MINUTE = 50
+HOUR = 12
+MINUTE = 5
