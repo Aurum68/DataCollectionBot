@@ -95,19 +95,19 @@ from .config import (ADMIN_TELEGRAM_ID, ADMIN_USERNAME,
                      TELEGRAM_BOT_USERNAME, TELEGRAM_TOKEN,
                      MYSQL_DATABASE, MYSQL_PASSWORD, MYSQL_USERNAME,
                      MYSQL_PORT, MYSQL_HOST, ADMIN_INVITE_FILE_PATH)
-from .database import (AsyncSessionLocal, Base, DBManager, get_engine, DATABASE_URL)
+from .database import (Base, create_engine_with_retry, check_connection, DBManager, DATABASE_URL)
 from .exel import (save_records,)
 from .cloud_disk import upload_to_yandex_disk
 from .initialize import (add_parameters_from_xlsx, ensure_admin_user_exists,
                          ensure_roles_exists, initialize,)
 from .main import (db_init, init, main, )#setup_sheduler,
 
-__all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
+__all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'Base',
            'BaseRepository', 'BaseServiceNonUpdating', 'BaseServiceUpdating',
-           'BloodPressureNorm', 'BloodPressureValidator', 'BotMiddleware',
+           'BloodPressureNorm', 'BloodPressureValidator', 'BotMiddleware', 'check_connection',
            'ChooseNorm', 'CreateInviteDTO', 'CreateMixin',
            'CreateParameterDTO', 'CreateRecordDTO', 'CreateRoleDTO', 'DATABASE_URL',
-           'CreateUserDTO', 'DATA_TABLE_PATH', 'MYSQL_DATABASE', 'MYSQL_PASSWORD',
+           'CreateUserDTO', 'create_engine_with_retry', 'DATA_TABLE_PATH', 'MYSQL_DATABASE', 'MYSQL_PASSWORD',
            'MYSQL_USERNAME', 'MYSQL_PORT', 'MYSQL_HOST',
            'ADMIN_INVITE_FILE_PATH', 'DBManager',
            'DBSessionMiddleware', 'DeleteMixin', 'ERROR_ACCESS',
@@ -189,7 +189,7 @@ __all__ = ['ADMIN_TELEGRAM_ID', 'ADMIN_USERNAME', 'AsyncSessionLocal', 'Base',
            'generate_admin_user_cancel_keyboard',
            'generate_admin_user_edit_keyboard',
            'generate_admin_user_edit_role_keyboard',
-           'generate_checkbox_keyboard', 'get_engine', 'get_router', 'init',
+           'generate_checkbox_keyboard', 'get_router', 'init',
            'initialize', 'is_admin_cb', 'is_admin_msg', 'is_norm_correct',
            'main', 'prepare_text', 'role_parameters', 'router',
            'safe_message_delete', 'save_answer', 'save_record', 'save_records',

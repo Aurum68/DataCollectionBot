@@ -9,8 +9,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
-
-from src. data_collection_bot. database. db_config import AsyncSessionLocal
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from src.data_collection_bot import UserService, User, Role, Parameter, Roles, RoleService, Rules, RecordService, \
     CreateRecordDTO, UserRepository, RoleRepository, ParameterRepository, RecordRepository
@@ -22,9 +21,10 @@ from src.data_collection_bot.exel import save_records
 async def daily_params_job(
         bot: Bot,
         storage: RedisStorage,
+        async_session_local: async_sessionmaker[AsyncSession]
 ):
     logging.info(f"SCHEDULER JOB TICK: {datetime.now(pytz.timezone('Europe/Kaliningrad'))}")
-    async with AsyncSessionLocal() as session:
+    async with async_session_local() as session:
         user_repository = UserRepository(session)
         user_service = UserService(user_repository)
 

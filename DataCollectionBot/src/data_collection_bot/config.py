@@ -30,3 +30,6 @@ DISK_PATH = "/app/data.xlsx"
 
 HOUR = 12
 MINUTE = 5
+
+MAX_DB_CONN_RETRIES = 20
+RETRY_DB_CONN_DELAY = 3
