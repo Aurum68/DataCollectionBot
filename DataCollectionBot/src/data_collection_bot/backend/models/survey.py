@@ -12,13 +12,17 @@ if TYPE_CHECKING:
     from src.data_collection_bot.backend.models.parameter import Parameter
     from src.data_collection_bot.backend.models.users.doctor import Doctor
     from src.data_collection_bot.backend.models.users.patient import Patient
+    from src.data_collection_bot.backend.models.patient_category import PatientCategory
 
 
 class Survey(IdentifiedBase):
     __tablename__ = 'survey'
     title: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=True)
-    patient_category: Mapped[str] = mapped_column(String(255), nullable=False)
+    patient_category_id: Mapped[int] = mapped_column(ForeignKey('patient_category.id'), nullable=False, unique=True)
+    patient_category: Mapped[list["PatientCategory"]] = relationship(
+        back_populates="surveys",
+    )
     parameters: Mapped[list["Parameter"]] = relationship(
         secondary=parameter_survey,
         back_populates="surveys",

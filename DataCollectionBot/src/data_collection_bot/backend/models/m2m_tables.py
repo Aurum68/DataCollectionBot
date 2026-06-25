@@ -22,3 +22,10 @@ doctor_patient = Table(
     Column("doctor_id", Integer, ForeignKey("doctor.id")),
     Column("patient_id", Integer, ForeignKey("patient.id")),
 )
+
+patient_category_link = Table(
+    "patient_category_link",
+    Base.metadata,
+    Column("patient_id", Integer, ForeignKey("patient.id")),
+    Column("category_id", Integer, ForeignKey("patient_category.id")),
+)

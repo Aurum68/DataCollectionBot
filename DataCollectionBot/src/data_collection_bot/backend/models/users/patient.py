@@ -3,7 +3,9 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from src.data_collection_bot.backend.models.m2m_tables import patient_survey, doctor_patient
+
+from src.data_collection_bot.backend.models.m2m_tables import patient_survey, doctor_patient, patient_category_link
+from src.data_collection_bot.backend.models.patient_category import PatientCategory
 from src.data_collection_bot.backend.models.users.user import User
 
 if TYPE_CHECKING:
@@ -29,6 +31,10 @@ class Patient(User):
     )
     daily_surveys: Mapped[list["DailySurvey"]] = relationship(
         back_populates="patient",
+    )
+    categories: Mapped[list["PatientCategory"]] = relationship(
+        secondary=patient_category_link,
+        back_populates="patients",
     )
 
     __mapper_args__ = {
