@@ -6,11 +6,20 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-from src.data_collection_bot import (Base,
-                                     DATABASE_URL,
-                                     User, Role, Record, Parameter, Invite
-                                     )
 
+from src.data_collection_bot.database.db_config import DATABASE_URL, Base
+from src.data_collection_bot.backend.models.identified_base import IdentifiedBase
+from src.data_collection_bot.backend.models.m2m_tables import parameter_survey, patient_survey, doctor_patient
+from src.data_collection_bot.backend.models.parameter import Parameter
+from src.data_collection_bot.backend.models.survey import Survey
+from src.data_collection_bot.backend.models.daily_survey import DailySurvey
+from src.data_collection_bot.backend.models.answer import Answer
+from src.data_collection_bot.backend.models.users.user import User
+from src.data_collection_bot.backend.models.users.patient import Patient
+from src.data_collection_bot.backend.models.users.doctor import Doctor
+from src.data_collection_bot.backend.models.invites.invite import Invite
+from src.data_collection_bot.backend.models.invites.patient_invite import PatientInvite
+from src.data_collection_bot.backend.models.invites.doctor_invite import DoctorInvite
 
 config = context.config
 config.set_main_option("sqlalchemy.url", DATABASE_URL)

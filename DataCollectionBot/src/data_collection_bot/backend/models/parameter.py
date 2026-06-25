@@ -1,25 +1,32 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from .identified_base import IdentifiedBase
-from .role_parameter import role_parameters
+from .m2m_tables import parameter_survey
 
 if TYPE_CHECKING:
-    from .role import Role
+    from .survey import Survey
+    from .answer import Answer
+    from .daily_survey import DailySurvey
 
 
 class Parameter(IdentifiedBase):
-    __tablename__ = 'parameters'
-    # id: int = Column(Integer, primary_key=True)
-    name: Mapped[str] = Column(String(255), unique=True, nullable=False)
-    rule: Mapped[str] = Column(String(255), nullable=False)
-    norm_row: Mapped[str] = Column(String(255), nullable=False)
-    choice: Mapped[str] = Column(String(255), nullable=True)
-    instruction: Mapped[str] = Column(String(255), nullable=True)
-    roles: Mapped[list["Role"]] = relationship(
-        "Role",
-        secondary=role_parameters,
-        back_populates="parameters",
+    __tablename__ = 'parameter'
+    name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    rule: Mapped[str] = mapped_column(String(255), nullable=False)
+    norm_row: Mapped[str] = mapped_column(String(255), nullable=False)
+    choice: Mapped[str] = mapped_column(String(255), nullable=True)
+    instruction: Mapped[str] = mapped_column(String(255), nullable=True)
+    parameter_order: Mapped[int] = mapped_column(default=1)
+    surveys: Mapped[list["Survey"]] = relationship(
+        secondary=parameter_survey,
+        back_populates="parameters"
+    )
+    daily_surveys: Mapped[list["DailySurvey"]] = relationship(
+        back_populates="current_parameter"
+    )
+    answers: Mapped[list["Answer"]] = relationship(
+        back_populates="parameter"
     )

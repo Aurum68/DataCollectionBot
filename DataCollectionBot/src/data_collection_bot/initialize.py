@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.data_collection_bot import UserService, User, Roles, RoleService, Role, CreateRoleDTO, \
+from src.data_collection_bot import UserService, User, Roles, RoleService, PatientCategory, CreateRoleDTO, \
     InviteService, ParameterService, CreateParameterDTO, Parameter, Rules
 from src.data_collection_bot.config import PARAMETERS_TABLE_PATH, ADMIN_INVITE_FILE_PATH
 
@@ -60,7 +60,7 @@ async def ensure_admin_user_exists(
 
 async def create_admin_invite(user: User, invite_service: InviteService, role_service: RoleService):
     if user is None:
-        role: Role = await role_service.get_role_by_name(Roles.ADMIN.value)
+        role: PatientCategory = await role_service.get_role_by_name(Roles.ADMIN.value)
         link: str = await invite_service.generate_invite_link(role=role)
         return link
     return None
@@ -87,6 +87,6 @@ async def add_parameters_from_xlsx(
         parameter_dtp = CreateParameterDTO(name=name, rule=Rules(rule).name, choice=choice, norm_row=norm_row, instruction=instruction)
         parameter: Parameter = await parameter_service.create(parameter_dtp)
 
-        roles_list: list[Role] = [(await role_service.get_role_by_name(name)) for name in roles.split(', ')]
+        roles_list: list[PatientCategory] = [(await role_service.get_role_by_name(name)) for name in roles.split(', ')]
         for role in roles_list:
             await role_service.add_parameter_to_role(role_id=role.id, parameter_id=parameter.id)

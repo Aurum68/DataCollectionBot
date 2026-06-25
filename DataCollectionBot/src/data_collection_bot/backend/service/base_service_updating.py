@@ -3,9 +3,12 @@ from typing import TypeVar, Type, Generic
 
 from pydantic import BaseModel
 
-from src.data_collection_bot.backend.mixin import GetMixin, CreateMixin, UpdateMixin, DeleteMixin
-from src.data_collection_bot.backend.models import IdentifiedBase
-from src.data_collection_bot.backend.repository import BaseRepository
+from src.data_collection_bot.backend.mixin.create_mixin import CreateMixin
+from src.data_collection_bot.backend.mixin.delete_mixin import DeleteMixin
+from src.data_collection_bot.backend.mixin.get_mixin import GetMixin
+from src.data_collection_bot.backend.mixin.update_mixin import UpdateMixin
+from src.data_collection_bot.backend.models.identified_base import IdentifiedBase
+from src.data_collection_bot.backend.repository.base_repository import BaseRepository
 
 TR = TypeVar('TR', bound=BaseRepository)
 TM = TypeVar('TM', bound=IdentifiedBase)

@@ -1,9 +1,10 @@
 from typing import Type
 
-from src.data_collection_bot.backend.dto import CreateParameterDTO, UpdateParameterDTO
-from src.data_collection_bot.backend.models import Parameter
-from src.data_collection_bot.backend.repository import ParameterRepository
-from src.data_collection_bot.backend.service import BaseServiceUpdating
+from src.data_collection_bot.backend.dto.create.create_parameter_dto import CreateParameterDTO
+from src.data_collection_bot.backend.dto.update.update_parameter_dto import UpdateParameterDTO
+from src.data_collection_bot.backend.models.parameter import Parameter
+from src.data_collection_bot.backend.repository.parameter_repository import ParameterRepository
+from src.data_collection_bot.backend.service.base_service_updating import BaseServiceUpdating
 
 
 class ParameterService(BaseServiceUpdating[

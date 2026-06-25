@@ -3,7 +3,7 @@ import os
 import openpyxl
 from openpyxl.styles import PatternFill
 
-from src.data_collection_bot.cloud_disk import upload_to_yandex_disk
+from src.data_collection_bot.cloud_disk.save_to_yandex_disk import upload_to_yandex_disk
 from src.data_collection_bot.config import DATA_TABLE_PATH, DISK_PATH
 
 

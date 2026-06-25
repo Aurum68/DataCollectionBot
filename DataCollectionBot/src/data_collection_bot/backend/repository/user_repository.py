@@ -3,8 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.data_collection_bot.backend.models import User
-from src.data_collection_bot.backend.repository import BaseRepository
+from src.data_collection_bot.backend.models.users.user import User
+from src.data_collection_bot.backend.repository.base_repository import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):

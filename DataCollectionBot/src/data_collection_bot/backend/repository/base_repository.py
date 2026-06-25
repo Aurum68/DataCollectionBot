@@ -4,7 +4,7 @@ from typing import TypeVar, Generic
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.data_collection_bot.backend.models import IdentifiedBase
+from src.data_collection_bot.backend.models.identified_base import IdentifiedBase
 
 T = TypeVar('T', bound=IdentifiedBase)
 

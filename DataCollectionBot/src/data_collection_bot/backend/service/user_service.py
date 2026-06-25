@@ -1,7 +1,8 @@
-from src.data_collection_bot.backend.dto import CreateUserDTO, UpdateUserDTO
-from src.data_collection_bot.backend.models import User
-from src.data_collection_bot.backend.repository import UserRepository
-from src.data_collection_bot.backend.service import BaseServiceUpdating
+from src.data_collection_bot.backend.dto.create.create_user_dto import CreateUserDTO
+from src.data_collection_bot.backend.dto.update.update_user_dto import UpdateUserDTO
+from src.data_collection_bot.backend.models.users.user import User
+from src.data_collection_bot.backend.repository.user_repository import UserRepository
+from src.data_collection_bot.backend.service.base_service_updating import BaseServiceUpdating
 
 
 class UserService(BaseServiceUpdating[

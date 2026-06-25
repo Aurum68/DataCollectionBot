@@ -1,8 +1,8 @@
 from logging import Logger
 from typing import TypeVar, Generic
 
-from src.data_collection_bot.backend.models import IdentifiedBase
-from src.data_collection_bot.backend.repository import BaseRepository
+from src.data_collection_bot.backend.models.identified_base import IdentifiedBase
+from src.data_collection_bot.backend.repository.base_repository import BaseRepository
 
 TRepo = TypeVar('TRepo', bound=BaseRepository)
 # mkinit TRepo:noexport
