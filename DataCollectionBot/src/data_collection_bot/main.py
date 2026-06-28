@@ -29,14 +29,6 @@ async def main():
     db_engine = await create_engine_with_retry()
     async_session_local = async_sessionmaker(bind=db_engine, class_=AsyncSession, expire_on_commit=False)
 
-    db_manager = DBManager(db_engine, Base)
-
-    await db_init(db_manager)
-
-
-async def db_init(db_manager: DBManager):
-    # await db_manager.db_clear()
-    await db_manager.db_init()
 
 if __name__ == '__main__':
     logging.info("Starting bot...")

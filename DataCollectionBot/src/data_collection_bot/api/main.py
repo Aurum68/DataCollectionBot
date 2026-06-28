@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from .api_v1.router import api_router
 from ..database.db_config import create_engine_with_retry, Base
-from ..database.db_manager import DBManager
 
 
 @asynccontextmanager
@@ -15,9 +14,6 @@ async def lifespan(app: FastAPI):
 
     app.state.db_engine = engine
     app.state.sessionmaker = SessionMaker
-
-    db_manager = DBManager(engine=engine, base=Base)
-    await db_manager.db_init()
 
     yield
 

@@ -12,13 +12,6 @@ class DBManager:
         self.logger = logging.getLogger(self.__class__.__name__)
 
 
-    async def db_init(self):
-        self.logger.info("Initializing database")
-        async with self.engine.begin() as conn:
-            await conn.run_sync(self.Base.metadata.create_all)
-        self.logger.info("Database initialized")
-
-
     async def db_dispose(self):
         self.logger.info("Dispose of database")
         await self.engine.dispose()

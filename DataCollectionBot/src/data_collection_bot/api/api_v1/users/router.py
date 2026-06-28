@@ -10,7 +10,6 @@ api_router = APIRouter()
 async def register(
         user: RequestCreateUserDto,
         services: Services = Depends(Services),
-        
 ):
     if user.email is None and user.password is None:
         raise HTTPException(status_code=401)
