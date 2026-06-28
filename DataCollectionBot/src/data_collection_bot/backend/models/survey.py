@@ -4,7 +4,7 @@ from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.data_collection_bot.backend.models.identified_base import IdentifiedBase
-from src.data_collection_bot.backend.models.m2m_tables import parameter_survey, patient_survey
+from src.data_collection_bot.backend.models.m2m_tables import survey_question, patient_survey
 
 if TYPE_CHECKING:
     from src.data_collection_bot.backend.models.daily_survey import DailySurvey
@@ -24,7 +24,7 @@ class Survey(IdentifiedBase):
         back_populates="surveys",
     )
     parameters: Mapped[list["Parameter"]] = relationship(
-        secondary=parameter_survey,
+        secondary=survey_question,
         back_populates="surveys",
     )
     created_by_doctor_id: Mapped[int] = mapped_column(ForeignKey('doctor.id'), nullable=False)

@@ -20,10 +20,6 @@ class Doctor(User):
         secondary=doctor_patient,
         back_populates="doctors"
     )
-    invite: Mapped["DoctorInvite"] = relationship(
-        back_populates="doctor",
-        uselist=False
-    )
     surveys: Mapped[list["Survey"]] = relationship(
         back_populates="doctor",
     )

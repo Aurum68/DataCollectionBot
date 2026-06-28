@@ -58,6 +58,24 @@ services:
     command: ["sh", "-c", "python src/data_collection_bot/main.py"]
     networks:
       - mynet
+  api:
+    image: myapp:latest
+    depends_on:
+      mysql:
+        condition: service_started
+      migrations:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    command: [ "sh", "-c", "uvicorn data_collection_bot.api.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src" ]
+    ports:
+      - "8000:8000"
+    networks:
+      - mynet
 
 networks:
   mynet:

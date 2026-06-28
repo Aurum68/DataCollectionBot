@@ -12,6 +12,8 @@ class Invite(IdentifiedBase):
     is_used: Mapped[bool] = mapped_column(default=False, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(nullable=True)
     role: Mapped[str] = mapped_column(String(255), nullable=False)
+    used_by_user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
+    used_at: Mapped[datetime] = mapped_column(nullable=True)
 
     __mapper_args__ = {
         'polymorphic_identity': 'invite',

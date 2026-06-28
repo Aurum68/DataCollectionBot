@@ -24,7 +24,7 @@ async def create_engine_with_retry() -> AsyncEngine:
         except OperationalError:
             logging.warning(f"MySQL недоступен, попытка {attempt+1}/{MAX_DB_CONN_RETRIES}, "
                             f"повторю через {RETRY_DB_CONN_DELAY} сек...")
-            time.sleep(RETRY_DB_CONN_DELAY)
+            await asyncio.sleep(RETRY_DB_CONN_DELAY)
     raise RuntimeError("Не удалось подключиться к MySQL после всех попыток!")
 
 

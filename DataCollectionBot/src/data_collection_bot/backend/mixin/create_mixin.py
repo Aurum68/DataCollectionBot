@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import TypeVar, Generic, Type
+from typing import TypeVar, Generic, Type, Any
 
 from pydantic import BaseModel
 
@@ -20,12 +20,17 @@ class CreateMixin(Generic[TModel, TRepo, T_Cr_DTO]):
     logger: Logger
 
 
+    def _prepare_create_data(self, item: T_Cr_DTO) -> dict[str, Any]:
+        return item.model_dump()
+
+
     async def create(self, item: T_Cr_DTO) -> TModel | None:
         if self.model is None:
             self.logger.error("model not implemented", exc_info=True)
             raise NotImplementedError("model not implemented")
         try:
-            new_item: TModel = self.model(**item.model_dump())
+            data = self._prepare_create_data(item)
+            new_item: TModel = self.model(**data)
             return await self.repository.save(new_item)
         except Exception as e:
             self.logger.error(e, exc_info=True)

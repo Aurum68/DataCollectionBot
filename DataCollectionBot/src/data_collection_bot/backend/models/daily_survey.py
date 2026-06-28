@@ -1,7 +1,7 @@
 import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.data_collection_bot.backend.models.identified_base import IdentifiedBase
@@ -37,3 +37,7 @@ class DailySurvey(IdentifiedBase):
     status: Mapped[str] = mapped_column(String(20))
     start_date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now)
     end_date: Mapped[datetime.datetime] = mapped_column(nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint("survey_id", "patient_id", "start_date"),
+    )

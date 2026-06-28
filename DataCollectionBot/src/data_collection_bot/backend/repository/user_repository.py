@@ -12,29 +12,9 @@ class UserRepository(BaseRepository[User]):
         super().__init__(session, User)
 
 
-    # async def get_all(self):
-    #     await self.session.commit()
-    #     print(sqlalchemy.__version__)
-    #     result = await self.session.execute(
-    #         select(self.model)
-    #         .options(
-    #             selectinload(self.model.role)
-    #         )
-    #     )
-    #     rows = result.all()
-    #     print('Raw rows:', rows)
-    #     print('Scalars:', list(result.scalars().all()))
-    #     print("self.model type:", type(self.model), self.model)
-    #     print("SELF.MODEL User id:", id(self.model))
-    #     return list(result.scalars().all())
-
-
     async def get_by_id(self, item_id: int) -> User:
         result = await self.session.execute(
             select(self.model)
-                .options(
-                    selectinload(User.role)
-                )
             .where(self.model.id == item_id))
         return result.scalars().first()
 
@@ -42,9 +22,6 @@ class UserRepository(BaseRepository[User]):
     async def get_user_by_telegram_id(self, telegram_id: int) -> User:
          result = await self.session.execute(
              select(self.model)
-             .options(
-                 selectinload(User.role)
-             )
              .where(self.model.telegram_id == telegram_id))
          return result.scalars().first()
 
@@ -55,18 +32,16 @@ class UserRepository(BaseRepository[User]):
             raise ValueError("Username is None")
         result = await self.session.execute(
             select(self.model)
-            .options(
-                selectinload(User.role)
-            )
             .where(self.model.username == username))
         return result.scalars().first()
 
 
-    async def get_user_by_invite_id(self, invite_id: int) -> User:
+    async def get_user_by_email(self, email: str) -> User:
+        if email is None:
+            self.logger.warning("Email is none")
+            raise ValueError("Email is None")
         result = await self.session.execute(
             select(self.model)
-            .options(
-                selectinload(User.role)
-            )
-            .where(self.model.invite_id == invite_id))
+            .where(self.model.email == email)
+        )
         return result.scalars().first()

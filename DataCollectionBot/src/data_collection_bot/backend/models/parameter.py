@@ -4,7 +4,7 @@ from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from .identified_base import IdentifiedBase
-from .m2m_tables import parameter_survey
+from .m2m_tables import survey_question
 
 if TYPE_CHECKING:
     from .survey import Survey
@@ -14,14 +14,12 @@ if TYPE_CHECKING:
 
 class Parameter(IdentifiedBase):
     __tablename__ = 'parameter'
+    code: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     rule: Mapped[str] = mapped_column(String(255), nullable=False)
-    norm_row: Mapped[str] = mapped_column(String(255), nullable=False)
-    choice: Mapped[str] = mapped_column(String(255), nullable=True)
-    instruction: Mapped[str] = mapped_column(String(255), nullable=True)
-    parameter_order: Mapped[int] = mapped_column(default=1)
+
     surveys: Mapped[list["Survey"]] = relationship(
-        secondary=parameter_survey,
+        secondary=survey_question,
         back_populates="parameters"
     )
     daily_surveys: Mapped[list["DailySurvey"]] = relationship(

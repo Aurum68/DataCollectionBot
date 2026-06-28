@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.data_collection_bot.backend.models.identified_base import IdentifiedBase
@@ -21,3 +21,7 @@ class Answer(IdentifiedBase):
         back_populates="answers"
     )
     text: Mapped[str] = mapped_column(String(255))
+
+    __table_args__ = (
+        UniqueConstraint("parameter_id", "daily_survey_id"),
+    )

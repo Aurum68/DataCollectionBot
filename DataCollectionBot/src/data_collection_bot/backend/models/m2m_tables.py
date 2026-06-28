@@ -1,12 +1,17 @@
-from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, UniqueConstraint, PrimaryKeyConstraint
 
 from src.data_collection_bot.database.db_config import Base
 
-parameter_survey = Table(
-    "parameter_survey",
+survey_question = Table(
+    "survey_question",
     Base.metadata,
     Column("parameter_id", Integer, ForeignKey("parameter.id")),
     Column("survey_id", Integer, ForeignKey("survey.id")),
+    Column('order', Integer),
+    Column('norm_row', String(255)),
+    Column('choice', String(255), nullable=True),
+    Column('instruction', String(255), nullable=True),
+    PrimaryKeyConstraint('parameter_id', 'survey_id'),
 )
 
 patient_survey = Table(
@@ -14,6 +19,7 @@ patient_survey = Table(
     Base.metadata,
     Column("patient_id", Integer, ForeignKey("patient.id")),
     Column("survey_id", Integer, ForeignKey("survey.id")),
+    UniqueConstraint('patient_id', 'survey_id'),
 )
 
 doctor_patient = Table(
